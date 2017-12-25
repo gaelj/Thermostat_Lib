@@ -23,14 +23,6 @@ OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
 {
     currentPage = 0;
     modeBlinkState = false;
-}
-
-/**
-* @brief Initalize the screen
-*
-*/
-void OledDisplayClass::Init()
-{
     SaveLastValues();
     SCREEN.begin();
     delay(OLED_WRITE_DELAY);
@@ -178,7 +170,6 @@ void OledDisplayClass::SetPower(bool value)
 {
     if (value) {
         SCREEN.on();
-        Init();
         DrawDisplay(true);
     }
     else

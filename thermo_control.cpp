@@ -19,14 +19,6 @@ ThermostatClass::ThermostatClass(PID* pid, SettingsClass* settings, SensorClass*
     BOILER_TIMER = &_BOILER_ON_TIMER;
     PID_TIMER = &_PID_TIMER;
     CurrentThermostatMode = Absent;
-}
-
-/**
-* @brief Initialization, to be called in the Setup() function
-*
-*/
-void ThermostatClass::Init()
-{
     _PID_TIMER.DurationInMillis = SETTINGS->TheSettings->SampleTime;
     BOILER->SetBoilerState(SWITCH_OFF);
     LastOutput = 0;

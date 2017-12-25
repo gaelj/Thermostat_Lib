@@ -11,7 +11,6 @@ class ButtonClass
 {
 public:
     ButtonClass(byte pin);
-    void Init();
     void ReadButton();
     bool ButtonHasBeenPressed;
     bool ButtonHasBeenReleased;

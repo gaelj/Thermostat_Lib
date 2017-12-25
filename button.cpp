@@ -6,10 +6,6 @@ ButtonClass::ButtonClass(byte pin)
     ButtonState = HIGH;
     ButtonHasBeenPressed = false;
     ButtonHasBeenReleased = false;
-}
-
-void ButtonClass::Init()
-{
     pinMode(Pin, INPUT);
 }
 

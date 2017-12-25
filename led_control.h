@@ -10,7 +10,6 @@
 class LedControlClass {
 public:
     LedControlClass(SensorClass* sensor, BoilerClass* boiler, ThermostatClass* thermostat);
-    void Init();
     void SetFlash(byte color);
     void SetBlinkingState();
     void SetAnimationState();

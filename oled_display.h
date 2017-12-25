@@ -25,7 +25,6 @@ public:
     OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
         BoilerClass* boiler, ThermostatClass* thermostat, PID* pid,
         LedControlClass* leds);
-    void Init();
     void DrawDisplay(bool force);
     void SetPower(bool value);
     void ShowNextPage();

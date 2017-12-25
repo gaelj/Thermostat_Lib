@@ -11,12 +11,6 @@ ButtonControlClass::ButtonControlClass(ThermostatClass* thermostat, LedControlCl
     power = true;
 }
 
-void ButtonControlClass::Init()
-{
-    BUTTON1.Init();
-    BUTTON2.Init();
-}
-
 void ButtonControlClass::HandlePressedButtons()
 {
     BUTTON1.ReadButton();

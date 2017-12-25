@@ -12,7 +12,6 @@
 class ThermostatClass {
 public:
     ThermostatClass(PID*, SettingsClass*, SensorClass*, BoilerClass*);
-    void Init();
     int Loop();
     void SetMode(ThermostatMode value);
     float ExteriorTemperature;

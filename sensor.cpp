@@ -20,6 +20,7 @@ SensorClass::SensorClass()
     DhtSensor.begin();
     Temperature = -0.2;
     Humidity = -0.2;
+    ReadSensor();
 }
 
 /**
@@ -56,6 +57,7 @@ byte sensor_roms[DS18B20_ROM_SIZE * DS18B20_MAX_SENSOR];
 SensorClass::SensorClass()
 {
     ds18b20.findAllSensors(sensor_roms);
+    ReadSensor();
 }
 
 /**

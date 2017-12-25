@@ -6,9 +6,9 @@
 #include "zwave_encoding.h"
 #include "settings.h"
 
-LedClass LED0;
-LedClass LED1;
-LedClass LED2;
+LedClass LED0(PIN_LED_R1, PIN_LED_G1, PIN_LED_B1);
+LedClass LED1(PIN_LED_R2, PIN_LED_G2, PIN_LED_B2);
+LedClass LED2(PIN_LED_R3, PIN_LED_G3, PIN_LED_B3);
 
 TimerClass BLINK_TIMER(LED_BLINK_PERIOD);
 TimerClass FLASH_TIMER(LED_FLASH_PERIOD);
@@ -27,19 +27,12 @@ LedControlClass::LedControlClass(SensorClass* sensor, BoilerClass* boiler, Therm
     animationIndex = 0;
     lastTemp = 0;
     power = true;
+    lastTemp = SENSOR->Temperature;
 }
 
 void LedControlClass::SetPower(bool value)
 {
     power = value;
-}
-
-void LedControlClass::Init()
-{
-    LED0.Init(PIN_LED_R1, PIN_LED_G1, PIN_LED_B1);
-    LED1.Init(PIN_LED_R2, PIN_LED_G2, PIN_LED_B2);
-    LED2.Init(PIN_LED_R3, PIN_LED_G3, PIN_LED_B3);
-    lastTemp = SENSOR->Temperature;
 }
 
 void LedControlClass::FlashEnqueue(byte color)

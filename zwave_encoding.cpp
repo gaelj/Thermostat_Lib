@@ -47,10 +47,10 @@ float DecodeExteriorTemperature(const byte encoded)
 }
 
 /**
-* @brief Convert a temperature mode to byte value for Zwave report
+* @brief Convert a temperature or humidity sensor reading to byte value for Zwave report
 *
 */
 word EncodeSensorReading(const float value)
 {
-    return word(value) * 100;
+    return word(value * 100);
 }

@@ -5,6 +5,7 @@ settings_s _Settings;
 SettingsClass::SettingsClass()
 {
     TheSettings = &_Settings;
+    LoadDefaults();
 }
 
 /**
