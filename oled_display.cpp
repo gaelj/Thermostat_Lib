@@ -11,11 +11,8 @@ OLED SCREEN;
 TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
 //TimerClass PAGE_TIMER(OLED_PAGE_PERIOD);
 
-char stringBuilderText[SB_CAPACITY + 1];
-char toStringText[TOSTR_CAPACITY + 1];
-
-StringBuilderClass BLOCK(stringBuilderText);
-StringConverterClass CONV(toStringText);
+StringBuilderClass BLOCK;
+StringConverterClass CONV;
 
 OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
     BoilerClass* boiler, ThermostatClass* thermostat, PID* pid, LedControlClass* leds)
@@ -59,7 +56,7 @@ void OledDisplayClass::DrawDisplay(bool force)
     if (redraw) {
         SCREEN.clrscr();
         delay(OLED_WRITE_DELAY);
-        //DrawCurrentPage();
+        DrawCurrentPage();
     }
 
     // 1st page icons

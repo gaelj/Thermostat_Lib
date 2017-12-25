@@ -1,18 +1,18 @@
 #ifndef OLEDSTRINGS_H
 #define OLEDSTRINGS_H
 
-char insideTemperature[] = "Inside temp";
-char insideTemperaturePrevious[] = "In temp prev";
-char insideHumidity[] = "Inside hum";
-char outsideTemperature[] = "Outside temp";
-char outsideHumidity[] = "Outside hum";
-char pidLastInput[] = "PID last inp";
-char pidLastOutput[] = "PID last out";
-char pidOutputSum[] = "PID output sum";
-char pidError[] = "PID error";
-char pidDInput[] = "PID dInput";
-char boilerTimerProgress[] = "Boiler prog";
-char boilerTimerDuration[] = "Boiler dur";
-char pidTimerProgress[] = "PID prog";
+static char insideTemperature[] = "Inside temp";
+static char insideTemperaturePrevious[] = "In temp prev";
+static char insideHumidity[] = "Inside hum";
+static char outsideTemperature[] = "Outside temp";
+static char outsideHumidity[] = "Outside hum";
+static char pidLastInput[] = "PID last inp";
+static char pidLastOutput[] = "PID last out";
+static char pidOutputSum[] = "PID output sum";
+static char pidError[] = "PID error";
+static char pidDInput[] = "PID dInput";
+static char boilerTimerProgress[] = "Boiler prog";
+static char boilerTimerDuration[] = "Boiler dur";
+static char pidTimerProgress[] = "PID prog";
 
 #endif // OLEDSTRINGS_H
