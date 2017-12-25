@@ -15,9 +15,11 @@
 #include "led_control.h"
 
 #define OLED_PAGE_COUNT     3
-#define OLED_WRITE_DELAY    5  // millis
+#define OLED_WRITE_DELAY    2  // millis
 #define OLED_BLINK_PERIOD   1000 // millis
 #define OLED_ROWHEADER_LEN  15
+#define PARAMETER_COUNT     13
+#define SIZEOF_FLOAT        4 // sizeof is broken
 
 class OledDisplayClass
 {
@@ -36,17 +38,18 @@ private:
     ThermostatClass* THERM;
     LedControlClass* LEDS;
     PID* PIDREG;
-    byte lastBoilerState;
-    float lastTemp;
-    ThermostatMode lastMode;
-    byte currentPage;
-    bool DisplayRedrawNeeded();
-    void SaveLastValues();
-    void AppendText(char* text, float value);
-    void AppendLine(char* text, float value);
-    void DrawCurrentPage();
+
     bool modeBlinkState;
+    byte lastBoilerState;
+    ThermostatMode lastMode;
+    float previousValues[PARAMETER_COUNT];
+    float currentValues[PARAMETER_COUNT];
+    byte currentPage;
     bool forceRedraw;
+
+    bool ValuesOnCurrentPageHaveChanged();
+
+    void AppendLine(char* text, float value);
 };
 
 #endif // OLEDDISPLAY_H

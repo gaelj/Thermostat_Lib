@@ -15,7 +15,7 @@ public:
     void SetAnimationState();
     void DrawAll();
     void SetPower(bool value);
-    float lastTemp;
+    float tempDelta;
 
 private:
     SensorClass* SENSOR;
@@ -34,6 +34,7 @@ private:
     void DoFlash(byte color);
     byte flashQueueSize;
     bool power;
+    float lastTemp;
 };
 
 #endif // LED_CONTROL_H

@@ -6,16 +6,16 @@
 #include "zwave_encoding.h"
 #include "settings.h"
 
-LedClass LED0(PIN_LED_R1, PIN_LED_G1, PIN_LED_B1);
-LedClass LED1(PIN_LED_R2, PIN_LED_G2, PIN_LED_B2);
-LedClass LED2(PIN_LED_R3, PIN_LED_G3, PIN_LED_B3);
+static LedClass LED0(PIN_LED_R1, PIN_LED_G1, PIN_LED_B1);
+static LedClass LED1(PIN_LED_R2, PIN_LED_G2, PIN_LED_B2);
+static LedClass LED2(PIN_LED_R3, PIN_LED_G3, PIN_LED_B3);
 
-TimerClass BLINK_TIMER(LED_BLINK_PERIOD);
-TimerClass FLASH_TIMER(LED_FLASH_PERIOD);
-TimerClass ANIMATION_TIMER(LED_ANIMATION_STEP_PERIOD);
-TimerClass TEMP_CHANGE_TIMER(LED_ANIMATION_TOTAL_PERIOD);
+static TimerClass BLINK_TIMER(LED_BLINK_PERIOD);
+static TimerClass FLASH_TIMER(LED_FLASH_PERIOD);
+static TimerClass ANIMATION_TIMER(LED_ANIMATION_STEP_PERIOD);
+static TimerClass TEMP_CHANGE_TIMER(LED_ANIMATION_TOTAL_PERIOD);
 
-const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
+static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
 
 LedControlClass::LedControlClass(SensorClass* sensor, BoilerClass* boiler, ThermostatClass* thermostat):
     SENSOR(sensor), BOILER(boiler), THERM(thermostat)
@@ -25,7 +25,6 @@ LedControlClass::LedControlClass(SensorClass* sensor, BoilerClass* boiler, Therm
     flashCounter = 0;
     animationDirection = 0;
     animationIndex = 0;
-    lastTemp = 0;
     power = true;
     lastTemp = SENSOR->Temperature;
 }
@@ -100,14 +99,13 @@ void LedControlClass::StartAnimation(int direction, int period)
  */
 void LedControlClass::SetAnimationState()
 {
-    if (TEMP_CHANGE_TIMER.IsElapsed()) {
-        TEMP_CHANGE_TIMER.Start();
-        float delta = SENSOR->Temperature - lastTemp;
-        if (delta != 0) {
-            int period = LED_ANIMATION_MIN_PERIOD / abs(delta);
+    if (TEMP_CHANGE_TIMER.IsElapsedRestart()) {
+        tempDelta = SENSOR->Temperature - lastTemp;
+        if (tempDelta != 0) {
+            int period = LED_ANIMATION_MIN_PERIOD / abs(tempDelta);
             if (period < LED_ANIMATION_MIN_PERIOD) period = LED_ANIMATION_MIN_PERIOD;
             if (period > LED_ANIMATION_MAX_PERIOD) period = LED_ANIMATION_MAX_PERIOD;
-            StartAnimation(delta > 0 ? 1 : -1, period);
+            StartAnimation(tempDelta > 0 ? 1 : -1, period);
         }
         else
             StartAnimation(0, LED_ANIMATION_STEP_PERIOD);
@@ -125,11 +123,10 @@ void LedControlClass::DrawAll()
 
     if (power) {
         // Toggle boiler blink
-        if (BLINK_TIMER.IsActive && BLINK_TIMER.IsElapsed()) {
+        if (BLINK_TIMER.IsActive && BLINK_TIMER.IsElapsedRestart()) {
             ledBlinkState = !ledBlinkState;
             if (ledBlinkState)
                 SetFlash(BOILER_BLINK_COLOR);
-            BLINK_TIMER.Start();
         }
 
         // Set base color according to mode
@@ -157,8 +154,7 @@ void LedControlClass::DrawAll()
         ledColors[i] = ledColor;
 
     if (animationDirection != 0) {
-        if (ANIMATION_TIMER.IsElapsed()) {
-            ANIMATION_TIMER.Start();
+        if (ANIMATION_TIMER.IsElapsedRestart()) {
             animationIndex += animationDirection;
             if (animationIndex < 0)
                 animationIndex = LED_COUNT;

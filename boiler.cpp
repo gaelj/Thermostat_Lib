@@ -24,9 +24,8 @@ BoilerClass::BoilerClass()
  */
 void BoilerClass::SetBoilerState(byte value)
 {
-    if (CurrentBoilerState != value && SAFETY_TIMER.IsElapsed()) {
+    if (CurrentBoilerState != value && SAFETY_TIMER.IsElapsedRestart()) {
         CurrentBoilerState = value;
         zunoSendToGroupSetValueCommand(CONTROL_GROUP_1, value);
-        SAFETY_TIMER.Start();
     }
 }

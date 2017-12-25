@@ -54,3 +54,8 @@ word EncodeSensorReading(const float value)
 {
     return word(value * 100);
 }
+
+float MillisToSeconds(unsigned long m)
+{
+    return float(m) / 60000;
+}

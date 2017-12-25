@@ -28,6 +28,14 @@ bool TimerClass::IsElapsed()
     return false;
 }
 
+bool TimerClass::IsElapsedRestart()
+{
+    bool ret = IsElapsed();
+    if (ret)
+        Start();
+    return ret;
+}
+
 float TimerClass::GetProgress()
 {
     unsigned long currentDuration = GetCurrentDuration();

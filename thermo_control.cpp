@@ -6,8 +6,8 @@
 
 #include "thermo_control.h"
 
-TimerClass _PID_TIMER(0);
-TimerClass _BOILER_ON_TIMER(BOILER_MIN_TIME);
+static TimerClass _PID_TIMER(0);
+static TimerClass _BOILER_ON_TIMER(BOILER_MIN_TIME);
 
  /**
   * @brief Constructor. Turns off the boiler
@@ -50,8 +50,7 @@ int ThermostatClass::Loop()
     float temp = SENSOR->Temperature;
     float setPoint = SETTINGS->GetSetPoint(CurrentThermostatMode);
 
-    if (_PID_TIMER.IsElapsed()) {
-        _PID_TIMER.Start();
+    if (_PID_TIMER.IsElapsedRestart()) {
         float newOutput = PIDREG->Compute(temp, setPoint);
         if (newOutput != -1)
             LastOutput = newOutput;

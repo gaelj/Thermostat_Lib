@@ -8,11 +8,13 @@
 
 
 OLED SCREEN;
-TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
-//TimerClass PAGE_TIMER(OLED_PAGE_PERIOD);
+static TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
+//static TimerClass PAGE_TIMER(OLED_PAGE_PERIOD);
 
-StringBuilderClass BLOCK;
-StringConverterClass CONV;
+static StringBuilderClass BLOCK;
+static StringConverterClass CONV;
+
+static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, PARAMETER_COUNT };
 
 OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
     BoilerClass* boiler, ThermostatClass* thermostat, PID* pid, LedControlClass* leds)
@@ -20,13 +22,10 @@ OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
 {
     currentPage = 0;
     modeBlinkState = false;
-    forceRedraw = false;
-    SaveLastValues();
+    forceRedraw = true;
     SCREEN.begin();
-    delay(OLED_WRITE_DELAY);
-    SCREEN.clrscr();
-    delay(OLED_WRITE_DELAY);
     SCREEN.setFont(SmallFont);
+    SCREEN.clrscr();
     delay(OLED_WRITE_DELAY);
 }
 
@@ -37,7 +36,6 @@ OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
 void OledDisplayClass::ShowNextPage()
 {
     currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
-    MODE_BLINK_TIMER.IsActive = false;
     forceRedraw = true;
 }
 
@@ -53,26 +51,39 @@ void OledDisplayClass::DrawDisplay()
         currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
         timerElapsed = true;
     }*/
-    bool redraw = DisplayRedrawNeeded() || forceRedraw/*|| timerElapsed*/;
+    bool redraw = ValuesOnCurrentPageHaveChanged();
+    redraw = redraw || forceRedraw/*|| timerElapsed*/;
     if (redraw) {
         SCREEN.clrscr();
         delay(OLED_WRITE_DELAY);
-        DrawCurrentPage();
+
+        BLOCK.Init();
+        for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++)
+            AppendLine(oledStrings[i], currentValues[i]);
+
+        SCREEN.gotoXY(0, 0);
+        SCREEN.print(BLOCK.GetText());
     }
 
     // 1st page icons
     if (currentPage == 0) {
-        char* modeIcon = empty_icon;
+
+        bool modeChanged = THERM->CurrentThermostatMode != lastMode || BOILER->CurrentBoilerState != lastBoilerState;
+        bool boilerChanged = THERM->CurrentThermostatMode != lastMode || BOILER->CurrentBoilerState != lastBoilerState;
+        lastMode = THERM->CurrentThermostatMode;
+        lastBoilerState = BOILER->CurrentBoilerState;
+
         bool timerElapsed = false;
-        if (MODE_BLINK_TIMER.IsElapsed()) {
+        if (MODE_BLINK_TIMER.IsElapsed() || modeChanged) {
             MODE_BLINK_TIMER.Start();
-            modeBlinkState = !modeBlinkState;
+            modeBlinkState = modeChanged || !modeBlinkState;
             timerElapsed = true;
         }
 
-        if (timerElapsed || redraw) {
-            // blinking thermostat mode icon
-            if (modeBlinkState || forceRedraw) {
+        // blinking thermostat mode icon
+        if (timerElapsed || modeChanged) {
+            char* modeIcon = empty_icon;
+            if (modeBlinkState) {
                 switch (THERM->CurrentThermostatMode) {
                 case Frost: modeIcon = snow_icon; break;
                 case Absent: modeIcon = absent_icon; break;
@@ -83,68 +94,18 @@ void OledDisplayClass::DrawDisplay()
             }
             SCREEN.gotoXY(20, 5);
             SCREEN.writeData(modeIcon);
-            delay(OLED_WRITE_DELAY);
+        }
 
-            // boiler state icon
-            if (BOILER->CurrentBoilerState) {
-                SCREEN.gotoXY(80, 5);
-                SCREEN.writeData(flame_icon);
-                delay(OLED_WRITE_DELAY);
-            }
+        // boiler state icon
+        if (boilerChanged) {
+            SCREEN.gotoXY(80, 5);
+            SCREEN.writeData(BOILER->CurrentBoilerState ? flame_icon : empty_icon);
         }
     }
     forceRedraw = false;
 }
 
-/**
-* @brief Draw page by id
-*
-*/
-void OledDisplayClass::DrawCurrentPage()
-{
-    byte i = 0;
-    float values[3];
-
-    BLOCK.Init();
-
-    switch (currentPage) {
-        case 0:
-            AppendLine(insideTemperature, SENSOR->Temperature);
-            AppendLine(insideHumidity, SENSOR->Humidity);
-            AppendLine(outsideTemperature, THERM->ExteriorTemperature);
-            AppendText(insideTemperaturePrevious, LEDS->lastTemp);
-            break;
-
-        case 1:
-            AppendLine(pidLastInput, PIDREG->lastInput);
-            AppendLine(pidLastOutput, PIDREG->lastOutput);
-            AppendLine(pidOutputSum, PIDREG->outputSum);
-            AppendText(pidError, PIDREG->error);
-            break;
-
-        case 2:
-            AppendLine(pidDInput, PIDREG->dInput);
-            AppendLine(boilerTimerProgress, THERM->BOILER_TIMER->Progress);
-            AppendLine(pidTimerProgress, THERM->PID_TIMER->Progress);
-            float boilerDurationInSecs = (float(THERM->BOILER_TIMER->DurationInMillis) / 1000) / 60;
-            AppendText(boilerTimerDuration, boilerDurationInSecs);
-            break;
-    }
-
-    SCREEN.gotoXY(0, 0);
-    SCREEN.print(BLOCK.GetText());
-    Serial.println(BLOCK.GetText());
-    delay(OLED_WRITE_DELAY);
-}
-
 void OledDisplayClass::AppendLine(char* text, float value)
-{
-    AppendText(text, value);
-    // Append newline
-    BLOCK.AppendString("\n");
-}
-
-void OledDisplayClass::AppendText(char* text, float value)
 {
     // Write definition string
     BLOCK.AppendString(text);
@@ -159,6 +120,9 @@ void OledDisplayClass::AppendText(char* text, float value)
     CONV.fixPrint(int(value * 100), 2);
     char* conv = CONV.GetText();
     BLOCK.AppendString(conv);
+
+    // Append newline
+    BLOCK.AppendString("\n");
 }
 
 /**
@@ -179,24 +143,33 @@ void OledDisplayClass::SetPower(bool value)
 * @brief Should the display be redrawn, due to source data update. Reads the temperature sensor
 *
 */
-bool OledDisplayClass::DisplayRedrawNeeded()
+bool OledDisplayClass::ValuesOnCurrentPageHaveChanged()
 {
-    // Refresh display if temperature has changed
-    // Refresh display if thermostat mode has changed
-    // Refresh display if boiler state has changed
-    bool result = false;
-    if (SENSOR->Temperature != lastTemp ||
-        THERM->CurrentThermostatMode != lastMode ||
-        BOILER->CurrentBoilerState != lastBoilerState) {
-        SaveLastValues();
-        result = true;
-    }
-    return result;
-}
+    // Store current values
+    currentValues[0] = SENSOR->Temperature;
+    currentValues[1] = LEDS->tempDelta;
+    currentValues[2] = SENSOR->Humidity;
+    currentValues[3] = THERM->ExteriorTemperature;
+    currentValues[4] = -1;
 
-void OledDisplayClass::SaveLastValues()
-{
-    lastTemp = SENSOR->Temperature;
-    lastMode = THERM->CurrentThermostatMode;
-    lastBoilerState = BOILER->CurrentBoilerState;
+    currentValues[5] = PIDREG->lastInput;
+    currentValues[6] = PIDREG->lastOutput;
+    currentValues[7] = PIDREG->outputSum;
+    currentValues[8] = PIDREG->error;
+    currentValues[9] = PIDREG->dInput;
+    currentValues[11] = THERM->PID_TIMER->Progress;
+
+    currentValues[10] = THERM->BOILER_TIMER->Progress;
+    currentValues[12] = MillisToSeconds(THERM->BOILER_TIMER->DurationInMillis);
+
+    // Check for changes
+    bool ret = false;
+    for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++)
+        if (previousValues[i] != currentValues[i])
+            ret = true;
+
+    for (byte i = 0; i < PARAMETER_COUNT; i++)
+        previousValues[i] = currentValues[i];
+
+    return ret;
 }

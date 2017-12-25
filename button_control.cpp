@@ -1,7 +1,7 @@
 #include "button_control.h"
 
-ButtonClass BUTTON1(PIN_BUTTON1);
-ButtonClass BUTTON2(PIN_BUTTON2);
+static ButtonClass BUTTON1(PIN_BUTTON1);
+static ButtonClass BUTTON2(PIN_BUTTON2);
 
 ButtonControlClass::ButtonControlClass(ThermostatClass* thermostat, LedControlClass* leds, OledDisplayClass* display):
     THERM(thermostat), LEDS(leds), DISPLAY(display)
