@@ -3,6 +3,12 @@
 
 #include <Arduino.h>
 
+enum ButtonStateChange {
+    None,
+    OnPressed,
+    OnReleased
+};
+
 /**
 * @brief Access to a button
 *
@@ -11,9 +17,7 @@ class ButtonClass
 {
 public:
     ButtonClass(byte pin);
-    void ReadButton();
-    bool ButtonHasBeenPressed;
-    bool ButtonHasBeenReleased;
+    ButtonStateChange ReadButton();
     byte ButtonState;
 
 private:

@@ -11,13 +11,14 @@ ButtonControlClass::ButtonControlClass(ThermostatClass* thermostat, LedControlCl
     power = true;
 }
 
-void ButtonControlClass::HandlePressedButtons()
+void ButtonControlClass::ReadButtons()
 {
-    BUTTON1.ReadButton();
-    BUTTON2.ReadButton();
-    if (BUTTON1.ButtonHasBeenPressed)
+    ButtonStateChange Event1 = BUTTON1.ReadButton();
+    ButtonStateChange Event2 = BUTTON2.ReadButton();
+
+    if (Event1 == OnPressed)
         button1Down = true;
-    if (BUTTON2.ButtonHasBeenPressed)
+    if (Event2 == OnPressed)
         button2Down = true;
 
     if ((button1Down && button2Down) || (!power && (button1Down || button2Down))) {
@@ -28,13 +29,12 @@ void ButtonControlClass::HandlePressedButtons()
         button1Down = false;
         button2Down = false;
     }
-    else if (BUTTON1.ButtonHasBeenReleased && button1Down) {
+    else if (Event1 == OnReleased && button1Down) {
         int newMode = (byte(THERM->CurrentThermostatMode) + 1) % THERMOSTAT_MODE_COUNT;
-        if (newMode < 0) newMode = THERMOSTAT_MODE_COUNT - 1;
         THERM->SetMode(ThermostatMode(newMode));
         button1Down = false;
     }
-    else if (BUTTON2.ButtonHasBeenReleased && button2Down) {
+    else if (Event2 == OnReleased && button2Down) {
         DISPLAY->ShowNextPage();
         button2Down = false;
     }

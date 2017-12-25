@@ -25,7 +25,7 @@ public:
     OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
         BoilerClass* boiler, ThermostatClass* thermostat, PID* pid,
         LedControlClass* leds);
-    void DrawDisplay(bool force);
+    void DrawDisplay();
     void SetPower(bool value);
     void ShowNextPage();
 
@@ -46,6 +46,7 @@ private:
     void AppendLine(char* text, float value);
     void DrawCurrentPage();
     bool modeBlinkState;
+    bool forceRedraw;
 };
 
 #endif // OLEDDISPLAY_H

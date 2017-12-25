@@ -20,6 +20,7 @@ OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
 {
     currentPage = 0;
     modeBlinkState = false;
+    forceRedraw = false;
     SaveLastValues();
     SCREEN.begin();
     delay(OLED_WRITE_DELAY);
@@ -37,14 +38,14 @@ void OledDisplayClass::ShowNextPage()
 {
     currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
     MODE_BLINK_TIMER.IsActive = false;
-    DrawDisplay(true);
+    forceRedraw = true;
 }
 
 /**
 * @brief Draw the screen
 *
 */
-void OledDisplayClass::DrawDisplay(bool force)
+void OledDisplayClass::DrawDisplay()
 {
     /*bool timerElapsed = false;
     if (PAGE_TIMER.IsElapsed()) {
@@ -52,7 +53,7 @@ void OledDisplayClass::DrawDisplay(bool force)
         currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
         timerElapsed = true;
     }*/
-    bool redraw = DisplayRedrawNeeded() || force/*|| timerElapsed*/;
+    bool redraw = DisplayRedrawNeeded() || forceRedraw/*|| timerElapsed*/;
     if (redraw) {
         SCREEN.clrscr();
         delay(OLED_WRITE_DELAY);
@@ -71,7 +72,7 @@ void OledDisplayClass::DrawDisplay(bool force)
 
         if (timerElapsed || redraw) {
             // blinking thermostat mode icon
-            if (modeBlinkState || force) {
+            if (modeBlinkState || forceRedraw) {
                 switch (THERM->CurrentThermostatMode) {
                 case Frost: modeIcon = snow_icon; break;
                 case Absent: modeIcon = absent_icon; break;
@@ -92,6 +93,7 @@ void OledDisplayClass::DrawDisplay(bool force)
             }
         }
     }
+    forceRedraw = false;
 }
 
 /**
@@ -167,7 +169,7 @@ void OledDisplayClass::SetPower(bool value)
 {
     if (value) {
         SCREEN.on();
-        DrawDisplay(true);
+        forceRedraw = true;
     }
     else
         SCREEN.off();

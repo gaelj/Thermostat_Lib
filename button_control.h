@@ -14,7 +14,7 @@ class ButtonControlClass
 {
 public:
     ButtonControlClass(ThermostatClass* thermostat, LedControlClass* leds, OledDisplayClass* display);
-    void HandlePressedButtons();
+    void ReadButtons();
 
 protected:
     ThermostatClass* THERM;
