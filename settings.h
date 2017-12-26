@@ -13,7 +13,7 @@
 #define THERMOSTAT_MAX              25.0        // maximum thermostat setting
 #define THERMOSTAT_DEFAULT          18.0        // default thermostat setting
 
-#define BOILER_MIN_TIME             1 * 60000   // 3mn min time between boiler state changes
+#define BOILER_MIN_TIME             1 * 60000   // min time between boiler state changes
 
 #define LOOP_DELAY                  10          // min loop period (including loop execution time)
 #define ZWAVE_PERIOD                30000       // ZWave refresh period (ZWave spec requires min 30s)

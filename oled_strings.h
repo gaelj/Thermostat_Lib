@@ -14,6 +14,7 @@ static char* oledStrings[] = {
     "PID error",
     "PID dInput",
     "PID progr",
+    "PID dur",
 
     "Boiler progr",
     "Boiler dur",

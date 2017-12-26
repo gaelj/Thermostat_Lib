@@ -18,8 +18,11 @@
 #define OLED_WRITE_DELAY    2  // millis
 #define OLED_BLINK_PERIOD   1000 // millis
 #define OLED_ROWHEADER_LEN  15
-#define PARAMETER_COUNT     13
+#define PARAMETER_COUNT     14
 #define SIZEOF_FLOAT        4 // sizeof is broken
+#define ICONS_ROW           5
+#define ICONS_COL1          20
+#define ICONS_COL2          80
 
 class OledDisplayClass
 {
@@ -43,7 +46,7 @@ private:
     byte lastBoilerState;
     ThermostatMode lastMode;
     float previousValues[PARAMETER_COUNT];
-    float currentValues[PARAMETER_COUNT];
+    float* currentValuePointers[PARAMETER_COUNT];
     byte currentPage;
     bool forceRedraw;
 

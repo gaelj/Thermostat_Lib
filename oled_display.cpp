@@ -14,12 +14,27 @@ static TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
 static StringBuilderClass BLOCK;
 static StringConverterClass CONV;
 
-static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, PARAMETER_COUNT };
+static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 12, PARAMETER_COUNT };
 
 OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
     BoilerClass* boiler, ThermostatClass* thermostat, PID* pid, LedControlClass* leds)
     : SETTINGS(settings), SENSOR(sensor), BOILER(boiler), THERM(thermostat), PIDREG(pid), LEDS(leds)
 {
+    currentValuePointers[0] = &SENSOR->Temperature;
+    currentValuePointers[1] = &LEDS->tempDelta;
+    currentValuePointers[2] = &SENSOR->Humidity;
+    currentValuePointers[3] = &THERM->ExteriorTemperature;
+    currentValuePointers[4] = &SENSOR->Humidity;
+    currentValuePointers[5] = &PIDREG->lastInput;
+    currentValuePointers[6] = &PIDREG->lastOutput;
+    currentValuePointers[7] = &PIDREG->outputSum;
+    currentValuePointers[8] = &PIDREG->error;
+    currentValuePointers[9] = &PIDREG->dInput;
+    currentValuePointers[10] = &THERM->PID_TIMER->Progress;
+    currentValuePointers[11] = &THERM->PID_TIMER->Duration;
+    currentValuePointers[12] = &THERM->BOILER_ON_TIMER->Progress;
+    currentValuePointers[13] = &THERM->BOILER_ON_TIMER->Duration;
+
     currentPage = 0;
     modeBlinkState = false;
     forceRedraw = true;
@@ -59,7 +74,7 @@ void OledDisplayClass::DrawDisplay()
 
         BLOCK.Init();
         for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++)
-            AppendLine(oledStrings[i], currentValues[i]);
+            AppendLine(oledStrings[i], *currentValuePointers[i]);
 
         SCREEN.gotoXY(0, 0);
         SCREEN.print(BLOCK.GetText());
@@ -68,8 +83,8 @@ void OledDisplayClass::DrawDisplay()
     // 1st page icons
     if (currentPage == 0) {
 
-        bool modeChanged = THERM->CurrentThermostatMode != lastMode || BOILER->CurrentBoilerState != lastBoilerState;
-        bool boilerChanged = THERM->CurrentThermostatMode != lastMode || BOILER->CurrentBoilerState != lastBoilerState;
+        bool modeChanged = THERM->CurrentThermostatMode != lastMode;
+        bool boilerChanged = BOILER->CurrentBoilerState != lastBoilerState;
         lastMode = THERM->CurrentThermostatMode;
         lastBoilerState = BOILER->CurrentBoilerState;
 
@@ -81,24 +96,24 @@ void OledDisplayClass::DrawDisplay()
         }
 
         // blinking thermostat mode icon
-        if (timerElapsed || modeChanged) {
+        if (timerElapsed || modeChanged || redraw) {
             char* modeIcon = empty_icon;
             if (modeBlinkState) {
                 switch (THERM->CurrentThermostatMode) {
-                case Frost: modeIcon = snow_icon; break;
-                case Absent: modeIcon = absent_icon; break;
-                case Night: modeIcon = moon_icon; break;
-                case Day: modeIcon = sun_icon; break;
-                case Warm: modeIcon = hot_icon; break;
+                    case Frost: modeIcon = snow_icon; break;
+                    case Absent: modeIcon = absent_icon; break;
+                    case Night: modeIcon = moon_icon; break;
+                    case Day: modeIcon = sun_icon; break;
+                    case Warm: modeIcon = hot_icon; break;
                 }
             }
-            SCREEN.gotoXY(20, 5);
+            SCREEN.gotoXY(ICONS_COL1, ICONS_ROW);
             SCREEN.writeData(modeIcon);
         }
 
         // boiler state icon
-        if (boilerChanged) {
-            SCREEN.gotoXY(80, 5);
+        if (boilerChanged || redraw) {
+            SCREEN.gotoXY(ICONS_COL2, ICONS_ROW);
             SCREEN.writeData(BOILER->CurrentBoilerState ? flame_icon : empty_icon);
         }
     }
@@ -145,31 +160,13 @@ void OledDisplayClass::SetPower(bool value)
 */
 bool OledDisplayClass::ValuesOnCurrentPageHaveChanged()
 {
-    // Store current values
-    currentValues[0] = SENSOR->Temperature;
-    currentValues[1] = LEDS->tempDelta;
-    currentValues[2] = SENSOR->Humidity;
-    currentValues[3] = THERM->ExteriorTemperature;
-    currentValues[4] = -1;
-
-    currentValues[5] = PIDREG->lastInput;
-    currentValues[6] = PIDREG->lastOutput;
-    currentValues[7] = PIDREG->outputSum;
-    currentValues[8] = PIDREG->error;
-    currentValues[9] = PIDREG->dInput;
-    currentValues[11] = THERM->PID_TIMER->Progress;
-
-    currentValues[10] = THERM->BOILER_TIMER->Progress;
-    currentValues[12] = MillisToSeconds(THERM->BOILER_TIMER->DurationInMillis);
-
     // Check for changes
     bool ret = false;
-    for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++)
-        if (previousValues[i] != currentValues[i])
+    for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
+        if (previousValues[i] != *currentValuePointers[i]) {
+            previousValues[i] = *currentValuePointers[i];
             ret = true;
-
-    for (byte i = 0; i < PARAMETER_COUNT; i++)
-        previousValues[i] = currentValues[i];
-
+        }
+    }
     return ret;
 }
