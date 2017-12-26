@@ -3,24 +3,19 @@
 TimerClass::TimerClass(unsigned long durationInMillis)
 {
     DurationInMillis = durationInMillis;
-    Start();
+    StartTime = millis();
     IsActive = false;
 }
 
 void TimerClass::Start()
 {
-    // start from the last timer end timestamp if possible
-    unsigned long currentDuration = GetCurrentDuration();
-    if (currentDuration > DurationInMillis && currentDuration < (DurationInMillis * 2))
-        StartTime += DurationInMillis;
-    else
-        StartTime = millis();
+    StartTime = millis();
     IsActive = true;
 }
 
 bool TimerClass::IsElapsed()
 {
-    Progress = GetProgress();
+    GetProgress();
     if (!IsActive || GetCurrentDuration() >= DurationInMillis) {
         IsActive = false;
         return true;
@@ -30,19 +25,20 @@ bool TimerClass::IsElapsed()
 
 bool TimerClass::IsElapsedRestart()
 {
-    bool ret = IsElapsed();
-    if (ret)
+    if (IsElapsed()) {
         Start();
-    return ret;
+        return true;
+    }
+    return false;
 }
 
-float TimerClass::GetProgress()
+void TimerClass::GetProgress()
 {
-    unsigned long currentDuration = GetCurrentDuration();
-    float currentDurationSec = float(currentDuration) / 1000;
+    Duration = MillisToMinutes(DurationInMillis);
+    unsigned long currentDurationInMillis = GetCurrentDuration();
+    float currentDurationSec = float(currentDurationInMillis) / 10;
     float totalDurationSec = float(DurationInMillis) / 1000;
-
-    return (currentDurationSec * 100) / totalDurationSec;
+    Progress = round(currentDurationSec / totalDurationSec);
 }
 
 unsigned long TimerClass::GetCurrentDuration()

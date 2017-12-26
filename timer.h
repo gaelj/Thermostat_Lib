@@ -2,6 +2,7 @@
 #define TIMER_H
 
 #include <Arduino.h>
+#include "zwave_encoding.h"
 
 class TimerClass {
 public:
@@ -11,12 +12,11 @@ public:
     bool IsElapsed();
     bool IsActive;
     unsigned long DurationInMillis;
+    float Duration;
     unsigned long StartTime;
     float Progress;
     unsigned long GetCurrentDuration();
-
-private:
-    float GetProgress();
+    void GetProgress();
 };
 
 #endif // TIMER_H
