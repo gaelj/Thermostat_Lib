@@ -14,6 +14,7 @@ ThermostatMode DecodeMode(const byte code);
 byte EncodeExteriorTemperature(const float temp);
 float DecodeExteriorTemperature(const byte encoded);
 word EncodeSensorReading(const float value);
+float MillisToMinutes(unsigned long m);
 float MillisToSeconds(unsigned long m);
 
 #endif // ZWAVE_ENCODING_H
