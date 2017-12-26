@@ -11,12 +11,12 @@
 
 class ThermostatClass {
 public:
-    ThermostatClass(PID*, SettingsClass*, SensorClass*, BoilerClass*);
-    int Loop();
+    ThermostatClass(PID*, SettingsClass*, SensorClass*, BoilerClass*, TimerClass*, TimerClass*);
+    void Loop();
     void SetMode(ThermostatMode value);
     float ExteriorTemperature;
     ThermostatMode CurrentThermostatMode;
-    TimerClass* BOILER_TIMER;
+    TimerClass* BOILER_ON_TIMER;
     TimerClass* PID_TIMER;
 
 private:

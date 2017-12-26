@@ -5,21 +5,16 @@
  */
 
 #include "thermo_control.h"
-
-static TimerClass _PID_TIMER(0);
-static TimerClass _BOILER_ON_TIMER(BOILER_MIN_TIME);
-
  /**
-  * @brief Constructor. Turns off the boiler
+  * @brief Constructor. Turns the boiler off
   *
   */
-ThermostatClass::ThermostatClass(PID* pid, SettingsClass* settings, SensorClass* sensor, BoilerClass* boiler) :
-    PIDREG(pid), SETTINGS(settings), SENSOR(sensor), BOILER(boiler)
+ThermostatClass::ThermostatClass(PID* pid, SettingsClass* settings, SensorClass* sensor, BoilerClass* boiler,
+    TimerClass* pidTimer, TimerClass* boilerTimer) :
+    PIDREG(pid), SETTINGS(settings), SENSOR(sensor), BOILER(boiler), PID_TIMER(pidTimer), BOILER_ON_TIMER(boilerTimer)
 {
-    BOILER_TIMER = &_BOILER_ON_TIMER;
-    PID_TIMER = &_PID_TIMER;
     CurrentThermostatMode = Absent;
-    _PID_TIMER.DurationInMillis = SETTINGS->TheSettings->SampleTime;
+    PID_TIMER->DurationInMillis = SETTINGS->TheSettings->SampleTime;
     BOILER->SetBoilerState(SWITCH_OFF);
     LastOutput = 0;
     ExteriorTemperature = 10;
@@ -30,13 +25,13 @@ ThermostatClass::ThermostatClass(PID* pid, SettingsClass* settings, SensorClass*
 /**
  * @brief Set the desired thermostat mode
  *
- * @param value     the desired thermostat mode
+ * @param value     the desired thermostat mode 
  */
 void ThermostatClass::SetMode(ThermostatMode value)
 {
     if (CurrentThermostatMode != value) {
         CurrentThermostatMode = value;
-        _PID_TIMER.IsActive = false;
+        PID_TIMER->IsActive = false;
     }
 }
 
@@ -45,21 +40,20 @@ void ThermostatClass::SetMode(ThermostatMode value)
  *
  * @return int      0 if OK, -1 in case of error
  */
-int ThermostatClass::Loop()
+void ThermostatClass::Loop()
 {
     float temp = SENSOR->Temperature;
     float setPoint = SETTINGS->GetSetPoint(CurrentThermostatMode);
 
-    if (_PID_TIMER.IsElapsedRestart()) {
+    if (PID_TIMER->IsElapsedRestart()) {
+
         float newOutput = PIDREG->Compute(temp, setPoint);
         if (newOutput != -1)
             LastOutput = newOutput;
         if (LastOutput > 0) {
-            _BOILER_ON_TIMER.DurationInMillis = float(SETTINGS->TheSettings->SampleTime) * LastOutput;
-            _BOILER_ON_TIMER.Start();
+            BOILER_ON_TIMER->DurationInMillis = SETTINGS->TheSettings->SampleTime * LastOutput;
+            BOILER_ON_TIMER->Start();
         }
     }
-    BOILER->SetBoilerState((!_BOILER_ON_TIMER.IsElapsed() && (temp < setPoint)) ? SWITCH_ON : SWITCH_OFF);
-
-    return 0;
+    BOILER->SetBoilerState((!BOILER_ON_TIMER->IsElapsed() && (temp < setPoint)) ? SWITCH_ON : SWITCH_OFF);
 }
