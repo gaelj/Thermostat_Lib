@@ -15,11 +15,10 @@
 #include "led_control.h"
 
 #define OLED_PAGE_COUNT     3
-#define OLED_WRITE_DELAY    2  // millis
+#define OLED_CLEAR_DELAY    5  // millis
 #define OLED_BLINK_PERIOD   1000 // millis
 #define OLED_ROWHEADER_LEN  15
 #define PARAMETER_COUNT     14
-#define SIZEOF_FLOAT        4 // sizeof is broken
 #define ICONS_ROW           5
 #define ICONS_COL1          20
 #define ICONS_COL2          80
@@ -27,9 +26,8 @@
 class OledDisplayClass
 {
 public:
-    OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
-        BoilerClass* boiler, ThermostatClass* thermostat, PID* pid,
-        LedControlClass* leds);
+    OledDisplayClass(SettingsClass*, SensorClass*, BoilerClass*,
+        ThermostatClass*, PID*, LedControlClass*, RemoteConfiguratorClass*);
     void DrawDisplay();
     void SetPower(bool value);
     void ShowNextPage();
@@ -40,6 +38,7 @@ private:
     BoilerClass* BOILER;
     ThermostatClass* THERM;
     LedControlClass* LEDS;
+    RemoteConfiguratorClass* REMOTE;
     PID* PIDREG;
 
     bool modeBlinkState;

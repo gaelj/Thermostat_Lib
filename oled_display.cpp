@@ -17,14 +17,14 @@ static StringConverterClass CONV;
 static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 12, PARAMETER_COUNT };
 
 OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
-    BoilerClass* boiler, ThermostatClass* thermostat, PID* pid, LedControlClass* leds)
-    : SETTINGS(settings), SENSOR(sensor), BOILER(boiler), THERM(thermostat), PIDREG(pid), LEDS(leds)
+    BoilerClass* boiler, ThermostatClass* thermostat, PID* pid, LedControlClass* leds, RemoteConfiguratorClass* remote)
+    : SETTINGS(settings), SENSOR(sensor), BOILER(boiler), THERM(thermostat), PIDREG(pid), LEDS(leds), REMOTE(remote)
 {
     currentValuePointers[0] = &SENSOR->Temperature;
     currentValuePointers[1] = &LEDS->tempDelta;
     currentValuePointers[2] = &SENSOR->Humidity;
-    currentValuePointers[3] = &THERM->ExteriorTemperature;
-    currentValuePointers[4] = &SENSOR->Humidity;
+    currentValuePointers[3] = &REMOTE->ExteriorTemperature;
+    currentValuePointers[4] = &REMOTE->ExteriorHumidity;
     currentValuePointers[5] = &PIDREG->lastInput;
     currentValuePointers[6] = &PIDREG->lastOutput;
     currentValuePointers[7] = &PIDREG->outputSum;
@@ -41,7 +41,7 @@ OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
     SCREEN.begin();
     SCREEN.setFont(SmallFont);
     SCREEN.clrscr();
-    delay(OLED_WRITE_DELAY);
+    delay(OLED_CLEAR_DELAY);
 }
 
 /**
@@ -70,7 +70,7 @@ void OledDisplayClass::DrawDisplay()
     redraw = redraw || forceRedraw/*|| timerElapsed*/;
     if (redraw) {
         SCREEN.clrscr();
-        delay(OLED_WRITE_DELAY);
+        delay(OLED_CLEAR_DELAY);
 
         BLOCK.Init();
         for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++)
@@ -83,14 +83,14 @@ void OledDisplayClass::DrawDisplay()
     // 1st page icons
     if (currentPage == 0) {
 
-        bool modeChanged = THERM->CurrentThermostatMode != lastMode;
+        bool modeChanged = REMOTE->CurrentThermostatMode != lastMode;
         bool boilerChanged = BOILER->CurrentBoilerState != lastBoilerState;
-        lastMode = THERM->CurrentThermostatMode;
+        lastMode = REMOTE->CurrentThermostatMode;
         lastBoilerState = BOILER->CurrentBoilerState;
 
         bool timerElapsed = false;
         if (MODE_BLINK_TIMER.IsElapsed() || modeChanged) {
-            MODE_BLINK_TIMER.Start();
+            MODE_BLINK_TIMER.Start(0);
             modeBlinkState = modeChanged || !modeBlinkState;
             timerElapsed = true;
         }
@@ -99,7 +99,7 @@ void OledDisplayClass::DrawDisplay()
         if (timerElapsed || modeChanged || redraw) {
             char* modeIcon = empty_icon;
             if (modeBlinkState) {
-                switch (THERM->CurrentThermostatMode) {
+                switch (REMOTE->CurrentThermostatMode) {
                     case Frost: modeIcon = snow_icon; break;
                     case Absent: modeIcon = absent_icon; break;
                     case Night: modeIcon = moon_icon; break;

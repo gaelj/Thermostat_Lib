@@ -17,8 +17,8 @@ static TimerClass TEMP_CHANGE_TIMER(LED_ANIMATION_TOTAL_PERIOD);
 
 static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
 
-LedControlClass::LedControlClass(SensorClass* sensor, BoilerClass* boiler, ThermostatClass* thermostat):
-    SENSOR(sensor), BOILER(boiler), THERM(thermostat)
+LedControlClass::LedControlClass(SensorClass* sensor, BoilerClass* boiler, ThermostatClass* thermostat, RemoteConfiguratorClass* remote):
+    SENSOR(sensor), BOILER(boiler), THERM(thermostat), REMOTE(remote)
 {
     ledBlinkState = false;
     flashColor = COLOR_BLACK;
@@ -62,7 +62,7 @@ void LedControlClass::SetFlash(byte color)
 
 void LedControlClass::DoFlash(byte color)
 {
-    FLASH_TIMER.Start();
+    FLASH_TIMER.Start(0);
     flashCounter = FLASHES;
     flashColor = color;
 }
@@ -73,7 +73,7 @@ void LedControlClass::SetBlinkingState()
     if (BLINK_TIMER.IsActive != state) {
         BLINK_TIMER.IsActive = state;
         if (BLINK_TIMER.IsActive)
-            BLINK_TIMER.Start();
+            BLINK_TIMER.Start(0);
     }
 }
 
@@ -89,7 +89,7 @@ void LedControlClass::StartAnimation(int direction, int period)
     animationDirection = direction;
     ANIMATION_TIMER.DurationInMillis = period;
     if (animationDirection != 0) {
-        ANIMATION_TIMER.Start();
+        ANIMATION_TIMER.Start(0);
     }
 }
 
@@ -130,7 +130,7 @@ void LedControlClass::DrawAll()
         }
 
         // Set base color according to mode
-        ledColor = ColorsByMode[byte(THERM->CurrentThermostatMode)];
+        ledColor = ColorsByMode[byte(REMOTE->CurrentThermostatMode)];
 
         // Flash LED
         if (!FLASH_TIMER.IsActive && flashQueueSize > 0) {
@@ -140,7 +140,7 @@ void LedControlClass::DrawAll()
             if (FLASH_TIMER.IsElapsed()) {
                 flashCounter--;
                 if (flashCounter > 0)
-                    FLASH_TIMER.Start();
+                    FLASH_TIMER.Start(0);
             }
             if (flashCounter == FLASHES - 1)
                 ledColor = flashColor;

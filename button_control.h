@@ -9,17 +9,22 @@
 #include "thermo_control.h"
 #include "led_control.h"
 #include "oled_display.h"
+#include "ThermostatRemoteConfig.h"
+#include "zwave_communication.h"
+
 
 class ButtonControlClass
 {
 public:
-    ButtonControlClass(ThermostatClass* thermostat, LedControlClass* leds, OledDisplayClass* display);
+    ButtonControlClass(ThermostatClass*, LedControlClass*, OledDisplayClass*, RemoteConfiguratorClass*, ZwaveCommunicationClass*);
     void ReadButtons();
 
 protected:
     ThermostatClass* THERM;
     LedControlClass* LEDS;
     OledDisplayClass* DISPLAY;
+    RemoteConfiguratorClass* REMOTE;
+    ZwaveCommunicationClass* ZWAVE;
     bool button1Down, button2Down;
     bool power;
 };

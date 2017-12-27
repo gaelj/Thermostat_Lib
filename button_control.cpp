@@ -3,8 +3,8 @@
 static ButtonClass BUTTON1(PIN_BUTTON1);
 static ButtonClass BUTTON2(PIN_BUTTON2);
 
-ButtonControlClass::ButtonControlClass(ThermostatClass* thermostat, LedControlClass* leds, OledDisplayClass* display):
-    THERM(thermostat), LEDS(leds), DISPLAY(display)
+ButtonControlClass::ButtonControlClass(ThermostatClass* thermostat, LedControlClass* leds, OledDisplayClass* display, RemoteConfiguratorClass* remote, ZwaveCommunicationClass* zwave):
+    THERM(thermostat), LEDS(leds), DISPLAY(display), REMOTE(remote), ZWAVE(zwave)
 {
     button1Down = false;
     button2Down = false;
@@ -30,8 +30,11 @@ void ButtonControlClass::ReadButtons()
         button2Down = false;
     }
     else if (Event1 == OnReleased && button1Down) {
-        int newMode = (byte(THERM->CurrentThermostatMode) + 1) % THERMOSTAT_MODE_COUNT;
-        THERM->SetMode(ThermostatMode(newMode));
+        ThermostatMode newMode = ThermostatMode((byte(REMOTE->CurrentThermostatMode) + 1) % THERMOSTAT_MODE_COUNT);
+        REMOTE->CurrentThermostatMode = newMode;
+
+        ZWAVE->SendCommandValue(Set_Mode, EncodeMode(REMOTE->CurrentThermostatMode));
+
         button1Down = false;
     }
     else if (Event2 == OnReleased && button2Down) {

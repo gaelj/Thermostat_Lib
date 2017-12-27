@@ -6,10 +6,11 @@
 #include "boiler.h"
 #include "thermo_control.h"
 #include "enumerations.h"
+#include "ThermostatRemoteConfig.h"
 
 class LedControlClass {
 public:
-    LedControlClass(SensorClass* sensor, BoilerClass* boiler, ThermostatClass* thermostat);
+    LedControlClass(SensorClass*, BoilerClass*, ThermostatClass*, RemoteConfiguratorClass*);
     void SetFlash(byte color);
     void SetBlinkingState();
     void SetAnimationState();
@@ -21,6 +22,7 @@ private:
     SensorClass* SENSOR;
     BoilerClass* BOILER;
     ThermostatClass* THERM;
+    RemoteConfiguratorClass* REMOTE;
     bool ledBlinkState;
     byte ledColors[LED_COUNT];
     byte flashColor;

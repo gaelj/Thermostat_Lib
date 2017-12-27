@@ -14,7 +14,7 @@ TimerClass SAFETY_TIMER(BOILER_MIN_TIME);
  */
 BoilerClass::BoilerClass()
 {
-    CurrentBoilerState = SWITCH_OFF;
+    CurrentBoilerState = SWITCH_ON;
 }
 
 /**

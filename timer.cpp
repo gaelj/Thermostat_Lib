@@ -7,9 +7,9 @@ TimerClass::TimerClass(unsigned long durationInMillis)
     IsActive = false;
 }
 
-void TimerClass::Start()
+void TimerClass::Start(unsigned long offset)
 {
-    StartTime = millis();
+    StartTime = millis() + offset;
     IsActive = true;
 }
 
@@ -26,7 +26,7 @@ bool TimerClass::IsElapsed()
 bool TimerClass::IsElapsedRestart()
 {
     if (IsElapsed()) {
-        Start();
+        Start(0);
         return true;
     }
     return false;
