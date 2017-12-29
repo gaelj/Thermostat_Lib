@@ -4,6 +4,7 @@
 
 #include <Arduino.h>
 #include "settings.h"
+#include "globals.h"
 
 class PID {
 public:
@@ -19,16 +20,16 @@ public:
     #define POn                     P_ON_E
     #define ControllerDirection     DIRECT
 
-    PID(SettingsClass*);
-    void Create(float, float, float);     // * Constructor. Initial tuning parameters are set here.
+    PID();
+    void Create(float, float, float, float*, float*);     // * Constructor. Initial tuning parameters are set here.
                                           // * clamps the output to a specific range. 0-255 by default, but
                                           //   it's likely the user will want to change this depending on
                                           //   the application
                                           //   sets the frequency, in Milliseconds, with which 
                                           //   the PID calculation is performed.  default is 100
 
-    float Compute(const float,            // * performs the PID calculation.  it should be
-        const float);                     //   called every time loop() cycles. ON/OFF and
+    float Compute();                      // * performs the PID calculation.  it should be
+                                          //   called every time loop() cycles. ON/OFF and
                                           //   calculation frequency can be set using SetMode
                                           //   SetSampleTime respectively
 
@@ -37,9 +38,7 @@ public:
     float outputSum, lastInput, lastOutput, error, dInput;
 
 private:
-    SettingsClass* SETTINGS;
     void Initialize();
-    void BoundValue(float*);              // * Make sure the value falls between the outMin and outMax boundaries
     void InvertPidParameters();           // * Make each PID parameter negative
     void SetTunings();                    // * While most users will set the tunings once in the 
                                           //   constructor, this function gives the user the option
@@ -52,6 +51,9 @@ private:
 
     unsigned long lastTime;
     float outMin, outMax;
+
+    float* input;
+    float* mySetpoint;
     bool inAuto;
 };
 #endif // PID_v1_h

@@ -3,42 +3,31 @@
 static ButtonClass BUTTON1(PIN_BUTTON1);
 static ButtonClass BUTTON2(PIN_BUTTON2);
 
-ButtonControlClass::ButtonControlClass(ThermostatClass* thermostat, LedControlClass* leds, OledDisplayClass* display, RemoteConfiguratorClass* remote, ZwaveCommunicationClass* zwave):
-    THERM(thermostat), LEDS(leds), DISPLAY(display), REMOTE(remote), ZWAVE(zwave)
-{
-    button1Down = false;
-    button2Down = false;
-    power = true;
-}
+bool button1Unhandled = false;
+bool button2Unhandled = false;
 
-void ButtonControlClass::ReadButtons()
+ButtonActions ReadButtons()
 {
     ButtonStateChange Event1 = BUTTON1.ReadButton();
     ButtonStateChange Event2 = BUTTON2.ReadButton();
 
     if (Event1 == OnPressed)
-        button1Down = true;
+        button1Unhandled = true;
     if (Event2 == OnPressed)
-        button2Down = true;
-
-    if ((button1Down && button2Down) || (!power && (button1Down || button2Down))) {
-        // toggle power
-        power = !power;
-        LEDS->SetPower(power);
-        DISPLAY->SetPower(power);
-        button1Down = false;
-        button2Down = false;
+        button2Unhandled = true;
+    
+    if (button1Unhandled && button2Unhandled) {
+        button1Unhandled = false;
+        button2Unhandled = false;
+        return Button12;
     }
-    else if (Event1 == OnReleased && button1Down) {
-        ThermostatMode newMode = ThermostatMode((byte(REMOTE->CurrentThermostatMode) + 1) % THERMOSTAT_MODE_COUNT);
-        REMOTE->CurrentThermostatMode = newMode;
 
-        ZWAVE->SendCommandValue(Set_Mode, EncodeMode(REMOTE->CurrentThermostatMode));
-
-        button1Down = false;
+    if (Event1 == OnReleased && button1Unhandled) {
+        button1Unhandled = false;
+        return Button1;
     }
-    else if (Event2 == OnReleased && button2Down) {
-        DISPLAY->ShowNextPage();
-        button2Down = false;
+    if (Event2 == OnReleased && button2Unhandled) {
+        button2Unhandled = false;
+        return Button2;
     }
 }

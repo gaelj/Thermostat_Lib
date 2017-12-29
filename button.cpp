@@ -16,5 +16,10 @@ ButtonStateChange ButtonClass::ReadButton()
             return OnPressed;
         return OnReleased;
     }
-    return None;
+    return NoButtonEvent;
+}
+
+bool ButtonClass::IsPressed()
+{
+    return ButtonState == LOW;
 }

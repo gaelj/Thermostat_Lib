@@ -2,6 +2,7 @@
 #define BOILER_H
 
 #include <Arduino.h>
+#include "globals.h"
 #include <ZUNO_legacy_channels.h>
 #include <ZUNO_channels.h>
 #include <ZUNO_Definitions.h>
@@ -13,12 +14,6 @@
 
 #define CONTROL_GROUP_1     1  // Boiler group
 
-class BoilerClass
-{
-public:
-    BoilerClass();
-    void SetBoilerState(byte value);
-    bool CurrentBoilerState;
-};
+void SetBoilerState(byte value);
 
 #endif // BOILER_H

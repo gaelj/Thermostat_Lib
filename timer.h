@@ -7,7 +7,7 @@
 class TimerClass {
 public:
     TimerClass(unsigned long );
-    void Start(unsigned long );
+    void Start();
     bool IsElapsedRestart();
     bool IsElapsed();
     bool IsActive;

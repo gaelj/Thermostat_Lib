@@ -2,6 +2,7 @@
 #define THERMOSTAT_H
 
 #include <Arduino.h>
+#include "globals.h"
 #include "settings.h"
 #include "sensor.h"
 #include "boiler.h"
@@ -13,19 +14,14 @@
 
 class ThermostatClass {
 public:
-    ThermostatClass(PID*, SettingsClass*, SensorClass*, BoilerClass*, TimerClass*, TimerClass*, RemoteConfiguratorClass*, ZwaveCommunicationClass*);
+    ThermostatClass(PID*);
     void Loop();
-    TimerClass* BOILER_ON_TIMER;
-    TimerClass* PID_TIMER;
 
 private:
-    SettingsClass* SETTINGS;
-    SensorClass* SENSOR;
-    BoilerClass* BOILER;
-    RemoteConfiguratorClass* REMOTE;
-    ZwaveCommunicationClass* ZWAVE;
     PID* PIDREG;
     float LastOutput;
+    float newOutput;
+    float setPoint;
     ThermostatMode CurrentThermostatMode;
 };
 

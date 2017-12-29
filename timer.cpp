@@ -7,9 +7,9 @@ TimerClass::TimerClass(unsigned long durationInMillis)
     IsActive = false;
 }
 
-void TimerClass::Start(unsigned long offset)
+void TimerClass::Start()
 {
-    StartTime = millis() + offset;
+    StartTime = millis();
     IsActive = true;
 }
 
@@ -26,7 +26,7 @@ bool TimerClass::IsElapsed()
 bool TimerClass::IsElapsedRestart()
 {
     if (IsElapsed()) {
-        Start(0);
+        Start();
         return true;
     }
     return false;
@@ -35,10 +35,7 @@ bool TimerClass::IsElapsedRestart()
 void TimerClass::GetProgress()
 {
     Duration = MillisToMinutes(DurationInMillis);
-    unsigned long currentDurationInMillis = GetCurrentDuration();
-    float currentDurationSec = float(currentDurationInMillis) / 10;
-    float totalDurationSec = float(DurationInMillis) / 1000;
-    Progress = round(currentDurationSec / totalDurationSec);
+    Progress = float(long(100.0f * float(GetCurrentDuration()) / float(DurationInMillis)));
 }
 
 unsigned long TimerClass::GetCurrentDuration()

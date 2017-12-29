@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 enum ButtonStateChange {
-    None,
+    NoButtonEvent,
     OnPressed,
     OnReleased
 };
@@ -19,6 +19,7 @@ public:
     ButtonClass(byte pin);
     ButtonStateChange ReadButton();
     byte ButtonState;
+    bool IsPressed();
 
 private:
     byte Pin;

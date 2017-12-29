@@ -16,24 +16,22 @@ static StringConverterClass CONV;
 
 static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 12, PARAMETER_COUNT };
 
-OledDisplayClass::OledDisplayClass(SettingsClass* settings, SensorClass* sensor,
-    BoilerClass* boiler, ThermostatClass* thermostat, PID* pid, LedControlClass* leds, RemoteConfiguratorClass* remote)
-    : SETTINGS(settings), SENSOR(sensor), BOILER(boiler), THERM(thermostat), PIDREG(pid), LEDS(leds), REMOTE(remote)
+OledDisplayClass::OledDisplayClass(PID* pid): PIDREG(pid)
 {
-    currentValuePointers[0] = &SENSOR->Temperature;
-    currentValuePointers[1] = &LEDS->tempDelta;
-    currentValuePointers[2] = &SENSOR->Humidity;
-    currentValuePointers[3] = &REMOTE->ExteriorTemperature;
-    currentValuePointers[4] = &REMOTE->ExteriorHumidity;
+    currentValuePointers[0] = &SensorTemperature;
+    currentValuePointers[1] = &Prm.tempDelta;
+    currentValuePointers[2] = &SensorHumidity;
+    currentValuePointers[3] = &Prm.ExteriorTemperature;
+    currentValuePointers[4] = &Prm.ExteriorHumidity;
     currentValuePointers[5] = &PIDREG->lastInput;
     currentValuePointers[6] = &PIDREG->lastOutput;
     currentValuePointers[7] = &PIDREG->outputSum;
     currentValuePointers[8] = &PIDREG->error;
     currentValuePointers[9] = &PIDREG->dInput;
-    currentValuePointers[10] = &THERM->PID_TIMER->Progress;
-    currentValuePointers[11] = &THERM->PID_TIMER->Duration;
-    currentValuePointers[12] = &THERM->BOILER_ON_TIMER->Progress;
-    currentValuePointers[13] = &THERM->BOILER_ON_TIMER->Duration;
+    currentValuePointers[10] = &PID_TIMER.Progress;
+    currentValuePointers[11] = &PID_TIMER.Duration;
+    currentValuePointers[12] = &BOILER_ON_TIMER.Progress;
+    currentValuePointers[13] = &BOILER_ON_TIMER.Duration;
 
     currentPage = 0;
     modeBlinkState = false;
@@ -83,14 +81,14 @@ void OledDisplayClass::DrawDisplay()
     // 1st page icons
     if (currentPage == 0) {
 
-        bool modeChanged = REMOTE->CurrentThermostatMode != lastMode;
-        bool boilerChanged = BOILER->CurrentBoilerState != lastBoilerState;
-        lastMode = REMOTE->CurrentThermostatMode;
-        lastBoilerState = BOILER->CurrentBoilerState;
+        bool modeChanged = Prm.CurrentThermostatMode != lastMode;
+        bool boilerChanged = CurrentBoilerState != lastBoilerState;
+        lastMode = Prm.CurrentThermostatMode;
+        lastBoilerState = CurrentBoilerState;
 
         bool timerElapsed = false;
         if (MODE_BLINK_TIMER.IsElapsed() || modeChanged) {
-            MODE_BLINK_TIMER.Start(0);
+            MODE_BLINK_TIMER.Start();
             modeBlinkState = modeChanged || !modeBlinkState;
             timerElapsed = true;
         }
@@ -99,7 +97,7 @@ void OledDisplayClass::DrawDisplay()
         if (timerElapsed || modeChanged || redraw) {
             char* modeIcon = empty_icon;
             if (modeBlinkState) {
-                switch (REMOTE->CurrentThermostatMode) {
+                switch (Prm.CurrentThermostatMode) {
                     case Frost: modeIcon = snow_icon; break;
                     case Absent: modeIcon = absent_icon; break;
                     case Night: modeIcon = moon_icon; break;
@@ -114,7 +112,7 @@ void OledDisplayClass::DrawDisplay()
         // boiler state icon
         if (boilerChanged || redraw) {
             SCREEN.gotoXY(ICONS_COL2, ICONS_ROW);
-            SCREEN.writeData(BOILER->CurrentBoilerState ? flame_icon : empty_icon);
+            SCREEN.writeData(CurrentBoilerState ? flame_icon : empty_icon);
         }
     }
     forceRedraw = false;

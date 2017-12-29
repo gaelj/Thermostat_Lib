@@ -17,8 +17,7 @@ static TimerClass TEMP_CHANGE_TIMER(LED_ANIMATION_TOTAL_PERIOD);
 
 static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
 
-LedControlClass::LedControlClass(SensorClass* sensor, BoilerClass* boiler, ThermostatClass* thermostat, RemoteConfiguratorClass* remote):
-    SENSOR(sensor), BOILER(boiler), THERM(thermostat), REMOTE(remote)
+LedControlClass::LedControlClass()
 {
     ledBlinkState = false;
     flashColor = COLOR_BLACK;
@@ -26,7 +25,7 @@ LedControlClass::LedControlClass(SensorClass* sensor, BoilerClass* boiler, Therm
     animationDirection = 0;
     animationIndex = 0;
     power = true;
-    lastTemp = SENSOR->Temperature;
+    lastTemp = SensorTemperature;
 }
 
 void LedControlClass::SetPower(bool value)
@@ -62,18 +61,18 @@ void LedControlClass::SetFlash(byte color)
 
 void LedControlClass::DoFlash(byte color)
 {
-    FLASH_TIMER.Start(0);
+    FLASH_TIMER.Start();
     flashCounter = FLASHES;
     flashColor = color;
 }
 
 void LedControlClass::SetBlinkingState()
 {
-    bool state = BOILER->CurrentBoilerState;
+    bool state = CurrentBoilerState;
     if (BLINK_TIMER.IsActive != state) {
         BLINK_TIMER.IsActive = state;
         if (BLINK_TIMER.IsActive)
-            BLINK_TIMER.Start(0);
+            BLINK_TIMER.Start();
     }
 }
 
@@ -89,7 +88,7 @@ void LedControlClass::StartAnimation(int direction, int period)
     animationDirection = direction;
     ANIMATION_TIMER.DurationInMillis = period;
     if (animationDirection != 0) {
-        ANIMATION_TIMER.Start(0);
+        ANIMATION_TIMER.Start();
     }
 }
 
@@ -100,16 +99,16 @@ void LedControlClass::StartAnimation(int direction, int period)
 void LedControlClass::SetAnimationState()
 {
     if (TEMP_CHANGE_TIMER.IsElapsedRestart()) {
-        tempDelta = SENSOR->Temperature - lastTemp;
-        if (tempDelta != 0) {
-            int period = LED_ANIMATION_MIN_PERIOD / abs(tempDelta);
+        Prm.tempDelta = SensorTemperature - lastTemp;
+        if (Prm.tempDelta != 0) {
+            int period = LED_ANIMATION_MIN_PERIOD / abs(Prm.tempDelta);
             if (period < LED_ANIMATION_MIN_PERIOD) period = LED_ANIMATION_MIN_PERIOD;
             if (period > LED_ANIMATION_MAX_PERIOD) period = LED_ANIMATION_MAX_PERIOD;
-            StartAnimation(tempDelta > 0 ? 1 : -1, period);
+            StartAnimation(Prm.tempDelta > 0 ? 1 : -1, period);
         }
         else
             StartAnimation(0, LED_ANIMATION_STEP_PERIOD);
-        lastTemp = SENSOR->Temperature;
+        lastTemp = SensorTemperature;
     }
 }
 
@@ -130,7 +129,7 @@ void LedControlClass::DrawAll()
         }
 
         // Set base color according to mode
-        ledColor = ColorsByMode[byte(REMOTE->CurrentThermostatMode)];
+        ledColor = ColorsByMode[byte(Prm.CurrentThermostatMode)];
 
         // Flash LED
         if (!FLASH_TIMER.IsActive && flashQueueSize > 0) {
@@ -140,7 +139,7 @@ void LedControlClass::DrawAll()
             if (FLASH_TIMER.IsElapsed()) {
                 flashCounter--;
                 if (flashCounter > 0)
-                    FLASH_TIMER.Start(0);
+                    FLASH_TIMER.Start();
             }
             if (flashCounter == FLASHES - 1)
                 ledColor = flashColor;

@@ -5,6 +5,7 @@
 #include <string.h>
 #include <Print.h>
 
+#include "globals.h"
 #include "string_builder.h"
 #include "settings.h"
 #include "sensor.h"
@@ -26,19 +27,12 @@
 class OledDisplayClass
 {
 public:
-    OledDisplayClass(SettingsClass*, SensorClass*, BoilerClass*,
-        ThermostatClass*, PID*, LedControlClass*, RemoteConfiguratorClass*);
+    OledDisplayClass(PID*);
     void DrawDisplay();
     void SetPower(bool value);
     void ShowNextPage();
 
 private:
-    SettingsClass* SETTINGS;
-    SensorClass* SENSOR;
-    BoilerClass* BOILER;
-    ThermostatClass* THERM;
-    LedControlClass* LEDS;
-    RemoteConfiguratorClass* REMOTE;
     PID* PIDREG;
 
     bool modeBlinkState;

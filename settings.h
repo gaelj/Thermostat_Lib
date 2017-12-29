@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <EEPROM.h>
+#include "globals.h"
 #include "led.h"
 #include "enumerations.h"
 
@@ -47,45 +48,12 @@
 #define DEFAULT_SampleTime      10 * 60000
 
 /**
- * @brief Structure containing all settings persisted to EEPROM
- *
- */
-struct settings_s {
-    byte Version;
-    float Setpoint_Frost;
-    float Setpoint_Absent;
-    float Setpoint_Night;
-    float Setpoint_Day;
-    float Setpoint_Warm;
-    float Kp;                  // (P)roportional Tuning Parameter
-    float Ki;                  // (I)ntegral Tuning Parameter
-    float Kd;                  // (D)erivative Tuning Parameter
-    unsigned long SampleTime;  // The time between 2 measurements
-    /*
-    float HysteresisRange;     // The number of degrees below setpoint at which heating is set
-    float ATuneStep;
-    float ATuneNoise;
-    float ATuneStartValue;
-    float ATuneLookBack;
-    */
-    byte  crc8;
-};
-
-/**
  * @brief Access to the settings
  */
-class SettingsClass {
-public:
-    SettingsClass();
-    bool RestoreSettings();
-    bool PersistSettings();
-    void LoadDefaults();
-    void DumpSettings();
-    float GetSetPoint(const ThermostatMode mode);
-    settings_s* TheSettings;
-
-private:
-    byte GetCrc8(byte* data, byte count);
-};
+float Settings_GetSetPoint(const ThermostatMode mode);
+bool Settings_RestoreSettings();
+bool Settings_PersistSettings();
+void Settings_LoadDefaults();
+void Settings_Dump();
 
 #endif // SETTINGS_H

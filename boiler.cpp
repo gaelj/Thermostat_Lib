@@ -7,22 +7,14 @@
 #include "boiler.h"
 
 TimerClass SAFETY_TIMER(BOILER_MIN_TIME);
-
-/**
- * @brief Constructor. Does required initialisations and turns the boiler off
- * 
- */
-BoilerClass::BoilerClass()
-{
-    CurrentBoilerState = SWITCH_ON;
-}
+bool CurrentBoilerState = SWITCH_ON;
 
 /**
  * @brief Set the state of the boiler to on or off, unless the last state change was too recent
  * 
  * @param value     the desired state
  */
-void BoilerClass::SetBoilerState(byte value)
+void SetBoilerState(byte value)
 {
     if (CurrentBoilerState != value && SAFETY_TIMER.IsElapsedRestart()) {
         CurrentBoilerState = value;

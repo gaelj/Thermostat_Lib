@@ -8,11 +8,13 @@
 
 #include <PID_v1.h>
 
+unsigned long now;
+
 /*Constructor (...)*********************************************************
  *    The parameters specified here are those for which we can't set up
  *    reliable defaults, so we need to have the user set them.
  ***************************************************************************/
-PID::PID(SettingsClass* settings): SETTINGS(settings)
+PID::PID()
 {
     lastOutput = 0;
     outputSum = 0;
@@ -20,8 +22,11 @@ PID::PID(SettingsClass* settings): SETTINGS(settings)
     dInput = 0;
 }
 
-void PID::Create(const float initialInput, const float Min, const float Max)
+void PID::Create(const float initialInput, const float Min, const float Max, float* temperature, float* setPoint)
 {
+    input = temperature;
+    mySetpoint = setPoint;
+
     lastInput = initialInput;
     inAuto = false;
 
@@ -32,8 +37,8 @@ void PID::Create(const float initialInput, const float Min, const float Max)
 
     SetTunings();
 
-    if (millis() > SETTINGS->TheSettings->SampleTime)
-        lastTime = millis() - SETTINGS->TheSettings->SampleTime;
+    if (millis() > TheSettings.SampleTime)
+        lastTime = millis() - TheSettings.SampleTime;
     else
         lastTime = 0;
 }
@@ -43,24 +48,24 @@ void PID::Create(const float initialInput, const float Min, const float Max)
  *   every time "void loop()" executes. returns the output when the output is computed,
  *   or -1 when nothing has been done.
  **********************************************************************************/
-float PID::Compute(const float input, const float mySetpoint)
+float PID::Compute()
 {
     //Serial.println("Computing PID");
 
     if (!inAuto) return -1;
-    unsigned long now = millis();
+    now = millis();
     //unsigned long timeChange = (now - lastTime);
-    //if (timeChange < SETTINGS->TheSettings->SampleTime) return -1;
+    //if (timeChange < TheSettings.SampleTime) return -1;
 
     //Compute all the working error variables
-    error = mySetpoint - input;
-    dInput = (input - lastInput);
+    error = *mySetpoint - *input;
+    dInput = (*input - lastInput);
     outputSum += (ki * error);
 
     //Add Proportional on Measurement, if P_ON_M is specified
     if (POn != P_ON_E) outputSum -= kp * dInput;
 
-    BoundValue(&outputSum);
+    constrain(outputSum, outMin, outMax);
 
     //Add Proportional on Error, if P_ON_E is specified
     if (POn == P_ON_E) lastOutput = kp * error;
@@ -69,10 +74,10 @@ float PID::Compute(const float input, const float mySetpoint)
     //Compute Rest of PID Output
     lastOutput += outputSum - (kd * dInput);
 
-    BoundValue(&lastOutput);
-
+    constrain(lastOutput, outMin, outMax);
+    
     //Remember some variables for next time
-    lastInput = input;
+    lastInput = *input;
     lastTime = now;
 
     return lastOutput;
@@ -85,10 +90,10 @@ float PID::Compute(const float input, const float mySetpoint)
  ******************************************************************************/
 void PID::SetTunings()
 {
-    float SampleTimeInSec = float(SETTINGS->TheSettings->SampleTime) / 1000;
-    kp = SETTINGS->TheSettings->Kp;
-    ki = SETTINGS->TheSettings->Ki * SampleTimeInSec;
-    kd = SETTINGS->TheSettings->Kd / SampleTimeInSec;
+    float SampleTimeInSec = float(TheSettings.SampleTime) / 1000;
+    kp = TheSettings.Kp;
+    ki = TheSettings.Ki * SampleTimeInSec;
+    kd = TheSettings.Kd / SampleTimeInSec;
 
     if (ControllerDirection == REVERSE)
         InvertPidParameters();
@@ -115,16 +120,7 @@ void PID::Initialize()
 {
     outputSum = lastOutput;
     lastInput = lastInput;
-    BoundValue(&outputSum);
-}
-
-/**
-* @brief Make sure the value falls between the outMin and outMax boundaries
-* 
-*/
-void PID::BoundValue(float* value)
-{
-    *value = constrain(*value, outMin, outMax);
+    constrain(outputSum, outMin, outMax);
 }
 
 /**

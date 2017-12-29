@@ -9,6 +9,7 @@
 #define REMOTECONFIG_H
 
 #include <Arduino.h>
+#include "globals.h"
 #include "enumerations.h"
 #include "zwave_encoding.h"
 
@@ -20,13 +21,13 @@ enum Commands {
     // Set commands: PC sends value to Zuno / Zuno requests value from PC
 
     Get_Mode,                   // 1
-    
+
     Get_Radiator_Count,         // 2
     Get_ActiveRadiator,         // 3
-    
+
     Get_RadiatorSetpoint1,      // 4
     Get_RadiatorSetpoint2,      // 5
-    
+
     Get_RadiatorTemperature1,   // 6
     Get_RadiatorTemperature2,   // 7
 
@@ -35,13 +36,19 @@ enum Commands {
 
     Get_ExteriorHumidity1,      // 10
     Get_ExteriorHumidity2,      // 11
-    
+
     Get_ExteriorPressure1,      // 12
     Get_ExteriorPressure2,      // 13
 
     // Get commands: Zuno sends value to PC
 
-    Set_Mode                    // 14
+    Set_Mode,                   // 14
+
+    Set_ActiveRadiator,         // 15
+
+    Set_RadiatorSetpoint1,      // 16
+    Set_RadiatorSetpoint2       // 17
+
 };
 
 
@@ -53,22 +60,6 @@ public:
     void SetCommand(Commands command);
     void SetValue(byte value);
     void ProcessCommandValue();
-
-    ThermostatMode CurrentThermostatMode;
-    byte RadiatorCount;
-    byte ActiveRadiator;
-    float RadiatorSetpoint;
-    float RadiatorTemperature;
-    
-    float baseExteriorTemperature;
-    float floatExteriorTemperature;
-    float ExteriorTemperature;
-
-    float baseExteriorHumidity;
-    float floatExteriorHumidity;
-    float ExteriorHumidity;
-
-    float ExteriorPressure;
 
 private:
     Commands currentCommand;

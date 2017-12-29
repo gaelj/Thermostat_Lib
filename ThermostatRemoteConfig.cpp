@@ -12,14 +12,14 @@ char* GotValue = "GV=";
 
 RemoteConfiguratorClass::RemoteConfiguratorClass()
 {
-    CurrentThermostatMode = Absent;
-    baseExteriorTemperature = 10;
-    floatExteriorTemperature = 0;
-    ExteriorTemperature = 10;
+    Prm.CurrentThermostatMode = Absent;
+    Prm.baseExteriorTemperature = 10;
+    Prm.floatExteriorTemperature = 0;
+    Prm.ExteriorTemperature = 10;
 
-    baseExteriorHumidity = 0;
-    floatExteriorHumidity = 0;
-    ExteriorHumidity = 0;
+    Prm.baseExteriorHumidity = 0;
+    Prm.floatExteriorHumidity = 0;
+    Prm.ExteriorHumidity = 0;
 
     currentCommand = No_Command;
     currentValue = NO_VALUE;
@@ -56,53 +56,53 @@ void RemoteConfiguratorClass::ProcessCommandValue()
 
         switch (currentCommand) {
             case Get_Mode:
-                CurrentThermostatMode = DecodeMode(currentValue);
+                Prm.CurrentThermostatMode = DecodeMode(currentValue);
                 break;
 
             case Get_Radiator_Count:
-                RadiatorCount = currentValue;
+                Prm.RadiatorCount = currentValue;
                 break;
             case Get_ActiveRadiator:
-                ActiveRadiator = currentValue;
+                Prm.ActiveRadiator = currentValue;
                 break;
 
             case Get_RadiatorSetpoint1:
-                RadiatorSetpoint = currentValue;
+                Prm.RadiatorSetpoint = currentValue;
                 break;
             case Get_RadiatorSetpoint2:
-                RadiatorSetpoint += float(currentValue) / 100;
+                Prm.RadiatorSetpoint += float(currentValue) / 100;
                 break;
 
             case Get_RadiatorTemperature1:
-                RadiatorTemperature = currentValue;
+                Prm.RadiatorTemperature = currentValue;
                 break;
             case Get_RadiatorTemperature2:
-                RadiatorTemperature += float(currentValue) / 100;
+                Prm.RadiatorTemperature += float(currentValue) / 100;
                 break;
 
             case Get_ExteriorTemperature1:
-                baseExteriorTemperature = currentValue - 50;
-                ExteriorTemperature = baseExteriorTemperature + floatExteriorTemperature;
+                Prm.baseExteriorTemperature = currentValue - 50;
+                Prm.ExteriorTemperature = Prm.baseExteriorTemperature + Prm.floatExteriorTemperature;
                 break;
             case Get_ExteriorTemperature2:
-                floatExteriorTemperature = float(currentValue) / 100;
-                ExteriorTemperature = baseExteriorTemperature + floatExteriorTemperature;
+                Prm.floatExteriorTemperature = float(currentValue) / 100;
+                Prm.ExteriorTemperature = Prm.baseExteriorTemperature + Prm.floatExteriorTemperature;
                 break;
 
             case Get_ExteriorHumidity1:
-                baseExteriorHumidity = currentValue;
-                ExteriorHumidity = baseExteriorHumidity + floatExteriorHumidity;
+                Prm.baseExteriorHumidity = currentValue;
+                Prm.ExteriorHumidity = Prm.baseExteriorHumidity + Prm.floatExteriorHumidity;
                 break;
             case Get_ExteriorHumidity2:
-                floatExteriorHumidity = float(currentValue) / 100;
-                ExteriorHumidity = baseExteriorHumidity + floatExteriorHumidity;
+                Prm.floatExteriorHumidity = float(currentValue) / 100;
+                Prm.ExteriorHumidity = Prm.baseExteriorHumidity + Prm.floatExteriorHumidity;
                 break;
 
             case Get_ExteriorPressure1:
-                ExteriorPressure = currentValue;
+                Prm.ExteriorPressure = currentValue;
                 break;
             case Get_ExteriorPressure2:
-                ExteriorPressure += float(currentValue) / 100;
+                Prm.ExteriorPressure += float(currentValue) / 100;
                 break;
         }
         currentCommand = No_Command;

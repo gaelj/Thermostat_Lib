@@ -7,6 +7,9 @@
 
 #include "sensor.h"
 
+float SensorTemperature = -0.2;
+float SensorHumidity = -0.2;
+
 #ifdef TEMP_DHT
 
 DHT DhtSensor(PIN_TEMP_SENSOR, DHT22);
@@ -15,11 +18,9 @@ DHT DhtSensor(PIN_TEMP_SENSOR, DHT22);
  * @brief Constructor. Does required initialisations and turns the boiler off
  * 
  */
-SensorClass::SensorClass()
+void InitSensor()
 {
     DhtSensor.begin();
-    Temperature = -0.2;
-    Humidity = -0.2;
     ReadSensor();
 }
 
@@ -27,15 +28,14 @@ SensorClass::SensorClass()
  * @brief Read the sensor and store the result to buffer
  * 
  */
-void SensorClass::ReadSensor()
+void ReadSensor()
 {
-    const byte force_read = 1;
     do {
-        Temperature = DhtSensor.readTemperature(force_read);
-    } while (Temperature == -0.1);
+        SensorTemperature = DhtSensor.readTemperature(FORCE_READ);
+    } while (SensorTemperature == -0.1);
     do {
-        Humidity = DhtSensor.readHumidity(force_read);
-    } while (Humidity == -0.1);
+        SensorHumidity = DhtSensor.readHumidity(FORCE_READ);
+    } while (SensorHumidity == -0.1);
 }
 #endif
 
@@ -54,7 +54,7 @@ byte sensor_roms[DS18B20_ROM_SIZE * DS18B20_MAX_SENSOR];
  * @brief Constructor. Does required initialisations and turns the boiler off
  * 
  */
-SensorClass::SensorClass()
+void InitSensor()
 {
     ds18b20.findAllSensors(sensor_roms);
     ReadSensor();
@@ -64,7 +64,7 @@ SensorClass::SensorClass()
  * @brief Read the sensor and store the result to buffer
  * 
  */
-void SensorClass::ReadSensor()
+void ReadSensor()
 {
     Temperature = ds18b20.getTemperature(DS18B20_ROM_DATA(0));
 }

@@ -7,6 +7,7 @@
 #include "pinout.h"
 #include "sensor.h"
 
+#include "globals.h"
 #include <Print.h>
 #include <string.h>
 #include <EEPROM.h>

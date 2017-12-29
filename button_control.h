@@ -4,6 +4,7 @@
 #define _BUTTON_CONTROL_h
 
 #include "Arduino.h"
+#include "globals.h"
 #include "button.h"
 #include "pinout.h"
 #include "thermo_control.h"
@@ -12,21 +13,13 @@
 #include "ThermostatRemoteConfig.h"
 #include "zwave_communication.h"
 
-
-class ButtonControlClass
-{
-public:
-    ButtonControlClass(ThermostatClass*, LedControlClass*, OledDisplayClass*, RemoteConfiguratorClass*, ZwaveCommunicationClass*);
-    void ReadButtons();
-
-protected:
-    ThermostatClass* THERM;
-    LedControlClass* LEDS;
-    OledDisplayClass* DISPLAY;
-    RemoteConfiguratorClass* REMOTE;
-    ZwaveCommunicationClass* ZWAVE;
-    bool button1Down, button2Down;
-    bool power;
+enum ButtonActions {
+    NoButtonAction,
+    Button1,
+    Button2,
+    Button12,
 };
+
+ButtonActions ReadButtons();
 
 #endif

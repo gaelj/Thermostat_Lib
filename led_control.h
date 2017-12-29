@@ -2,6 +2,7 @@
 #define LED_CONTROL_H
 
 #include <Arduino.h>
+#include "globals.h"
 #include "sensor.h"
 #include "boiler.h"
 #include "thermo_control.h"
@@ -10,19 +11,14 @@
 
 class LedControlClass {
 public:
-    LedControlClass(SensorClass*, BoilerClass*, ThermostatClass*, RemoteConfiguratorClass*);
+    LedControlClass();
     void SetFlash(byte color);
     void SetBlinkingState();
     void SetAnimationState();
     void DrawAll();
     void SetPower(bool value);
-    float tempDelta;
 
 private:
-    SensorClass* SENSOR;
-    BoilerClass* BOILER;
-    ThermostatClass* THERM;
-    RemoteConfiguratorClass* REMOTE;
     bool ledBlinkState;
     byte ledColors[LED_COUNT];
     byte flashColor;
