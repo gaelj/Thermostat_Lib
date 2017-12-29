@@ -10,7 +10,11 @@
 char* GotCommand = "GC=";
 char* GotValue = "GV=";
 
-RemoteConfiguratorClass::RemoteConfiguratorClass()
+Commands currentCommand = No_Command;
+byte currentValue = NO_VALUE;
+
+
+void Remote_InitParameters()
 {
     Prm.CurrentThermostatMode = Absent;
     Prm.baseExteriorTemperature = 10;
@@ -20,32 +24,9 @@ RemoteConfiguratorClass::RemoteConfiguratorClass()
     Prm.baseExteriorHumidity = 0;
     Prm.floatExteriorHumidity = 0;
     Prm.ExteriorHumidity = 0;
-
-    currentCommand = No_Command;
-    currentValue = NO_VALUE;
 }
 
-void RemoteConfiguratorClass::SetCommand(Commands command)
-{
-    /*
-    Serial.print(GotCommand);
-    Serial.println(command);*/
-
-    currentCommand = command;
-    ProcessCommandValue();
-}
-
-void RemoteConfiguratorClass::SetValue(byte value)
-{
-    /*
-    Serial.print(GotValue);
-    Serial.println(value);*/
-
-    currentValue = value;
-    ProcessCommandValue();
-}
-
-void RemoteConfiguratorClass::ProcessCommandValue()
+void ProcessCommandValue()
 {
     if (currentCommand != No_Command && currentValue != NO_VALUE) {
         /*
@@ -114,4 +95,24 @@ void RemoteConfiguratorClass::ProcessCommandValue()
                 break;
         }
     }*/
+}
+
+void Remote_SetCommand(Commands command)
+{
+    /*
+    Serial.print(GotCommand);
+    Serial.println(command);*/
+
+    currentCommand = command;
+    ProcessCommandValue();
+}
+
+void Remote_SetValue(byte value)
+{
+    /*
+    Serial.print(GotValue);
+    Serial.println(value);*/
+
+    currentValue = value;
+    ProcessCommandValue();
 }

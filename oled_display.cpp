@@ -7,7 +7,7 @@
 #include "settings.h"
 
 
-OLED SCREEN;
+static OLED SCREEN;
 static TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
 //static TimerClass PAGE_TIMER(OLED_PAGE_PERIOD);
 
@@ -19,7 +19,7 @@ static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 12, PARAMETER_COUNT 
 OledDisplayClass::OledDisplayClass(PID* pid): PIDREG(pid)
 {
     currentValuePointers[0] = &SensorTemperature;
-    currentValuePointers[1] = &Prm.tempDelta;
+    currentValuePointers[1] = &Prm.TempDelta;
     currentValuePointers[2] = &SensorHumidity;
     currentValuePointers[3] = &Prm.ExteriorTemperature;
     currentValuePointers[4] = &Prm.ExteriorHumidity;

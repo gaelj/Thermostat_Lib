@@ -63,7 +63,9 @@ struct params_s {
 
     float ExteriorPressure;
 
-    float tempDelta;
+    float TempDelta;
+
+    bool IlluminationPower;
 };
 
 #endif // ENUMERATIONS_H

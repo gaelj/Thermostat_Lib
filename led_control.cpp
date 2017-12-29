@@ -17,23 +17,18 @@ static TimerClass TEMP_CHANGE_TIMER(LED_ANIMATION_TOTAL_PERIOD);
 
 static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
 
-LedControlClass::LedControlClass()
-{
-    ledBlinkState = false;
-    flashColor = COLOR_BLACK;
-    flashCounter = 0;
-    animationDirection = 0;
-    animationIndex = 0;
-    power = true;
-    lastTemp = SensorTemperature;
-}
+bool ledBlinkState = false;
+byte flashColor = COLOR_BLACK;
+byte flashCounter = 0;
+int animationDirection = 0;
+int animationIndex = 0;
+float lastTemp = SensorTemperature;
+byte flashQueueSize = 0;
+byte flashQueue[FLASH_QUEUE_LEN];
+byte ledColors[LED_COUNT];
 
-void LedControlClass::SetPower(bool value)
-{
-    power = value;
-}
 
-void LedControlClass::FlashEnqueue(byte color)
+void FlashEnqueue(byte color)
 {
     if (flashQueueSize < FLASH_QUEUE_LEN) {
         flashQueue[flashQueueSize] = color;
@@ -41,7 +36,7 @@ void LedControlClass::FlashEnqueue(byte color)
     }
 }
 
-byte LedControlClass::FlashDequeue()
+byte FlashDequeue()
 {
     byte color = flashQueue[0];
     flashQueueSize--;
@@ -54,19 +49,38 @@ byte LedControlClass::FlashDequeue()
     return color;
 }
 
-void LedControlClass::SetFlash(byte color)
-{
-    FlashEnqueue(color);
-}
-
-void LedControlClass::DoFlash(byte color)
+void DoFlash(byte color)
 {
     FLASH_TIMER.Start();
     flashCounter = FLASHES;
     flashColor = color;
 }
 
-void LedControlClass::SetBlinkingState()
+/**
+ * @brief Controls LED animation
+ * 
+ * @param direction 0=off, -1=down, 1=up
+ * @param period millis between each frame of the animation
+ */
+void StartAnimation(int direction, int period)
+{
+    if (animationDirection == direction && ANIMATION_TIMER.DurationInMillis == period) return;
+    animationDirection = direction;
+    ANIMATION_TIMER.DurationInMillis = period;
+    if (animationDirection != 0) {
+        ANIMATION_TIMER.Start();
+    }
+}
+
+
+
+
+void LedsSetFlash(byte color)
+{
+    FlashEnqueue(color);
+}
+
+void LedsSetBlinkingState()
 {
     bool state = CurrentBoilerState;
     if (BLINK_TIMER.IsActive != state) {
@@ -77,34 +91,18 @@ void LedControlClass::SetBlinkingState()
 }
 
 /**
- * @brief Controls LED animation
- * 
- * @param direction 0=off, -1=down, 1=up
- * @param period millis between each frame of the animation
- */
-void LedControlClass::StartAnimation(int direction, int period)
-{
-    if (animationDirection == direction && ANIMATION_TIMER.DurationInMillis == period) return;
-    animationDirection = direction;
-    ANIMATION_TIMER.DurationInMillis = period;
-    if (animationDirection != 0) {
-        ANIMATION_TIMER.Start();
-    }
-}
-
-/**
- * @brief Set the LED animation according to temperature change
- * 
- */
-void LedControlClass::SetAnimationState()
+* @brief Set the LED animation according to temperature change
+*
+*/
+void LedsSetAnimationState()
 {
     if (TEMP_CHANGE_TIMER.IsElapsedRestart()) {
-        Prm.tempDelta = SensorTemperature - lastTemp;
-        if (Prm.tempDelta != 0) {
-            int period = LED_ANIMATION_MIN_PERIOD / abs(Prm.tempDelta);
+        Prm.TempDelta = SensorTemperature - lastTemp;
+        if (Prm.TempDelta != 0) {
+            int period = LED_ANIMATION_MIN_PERIOD / abs(Prm.TempDelta);
             if (period < LED_ANIMATION_MIN_PERIOD) period = LED_ANIMATION_MIN_PERIOD;
             if (period > LED_ANIMATION_MAX_PERIOD) period = LED_ANIMATION_MAX_PERIOD;
-            StartAnimation(Prm.tempDelta > 0 ? 1 : -1, period);
+            StartAnimation(Prm.TempDelta > 0 ? 1 : -1, period);
         }
         else
             StartAnimation(0, LED_ANIMATION_STEP_PERIOD);
@@ -116,16 +114,16 @@ void LedControlClass::SetAnimationState()
 * @brief Set each LED's color according to implemented behaviours
 *
 */
-void LedControlClass::DrawAll()
+void LedsDrawAll()
 {
     byte ledColor = COLOR_BLACK;
 
-    if (power) {
+    if (Prm.IlluminationPower) {
         // Toggle boiler blink
         if (BLINK_TIMER.IsActive && BLINK_TIMER.IsElapsedRestart()) {
             ledBlinkState = !ledBlinkState;
             if (ledBlinkState)
-                SetFlash(BOILER_BLINK_COLOR);
+                LedsSetFlash(BOILER_BLINK_COLOR);
         }
 
         // Set base color according to mode

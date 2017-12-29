@@ -51,19 +51,8 @@ enum Commands {
 
 };
 
-
-class RemoteConfiguratorClass
-{
-public:
-    RemoteConfiguratorClass();
-
-    void SetCommand(Commands command);
-    void SetValue(byte value);
-    void ProcessCommandValue();
-
-private:
-    Commands currentCommand;
-    byte currentValue;
-};
+void Remote_InitParameters();
+void Remote_SetCommand(Commands command);
+void Remote_SetValue(byte value);
 
 #endif // REMOTECONFIG_H

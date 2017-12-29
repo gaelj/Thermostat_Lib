@@ -1,25 +1,32 @@
 #include "zwave_communication.h"
 
-ZwaveCommunicationClass::ZwaveCommunicationClass(byte* command, byte* value)
-{
-    commandPtr = command;
-    valuePtr = value;
-}
+byte ztxCommand = 0;
+byte ztxValue = 0;
+byte zrxCommand = 0;
+byte zrxValue = 0;
 
-void ZwaveCommunicationClass::SendCommandValue(byte command, byte value)
+void ReportTXCommandValue(byte command, byte value)
 {
-    *commandPtr = command;
-    *valuePtr = value;
+    ztxCommand = command;
+    ztxValue = value;
     zunoSendReport(ZUNO_REPORT_ZTXCOMMAND);
     zunoSendReport(ZUNO_REPORT_ZTXVALUE);
 }
 
-void ZwaveCommunicationClass::ReportTemperature()
+void ReportRXCommandValue(byte command, byte value)
+{
+    zrxCommand = command;
+    zrxValue = value;
+    zunoSendReport(ZUNO_REPORT_ZRXCOMMAND);
+    zunoSendReport(ZUNO_REPORT_ZRXVALUE);
+}
+
+void ReportTemperature()
 {
     zunoSendReport(ZUNO_REPORT_TEMP);
 }
 
-void ZwaveCommunicationClass::ReportHumidity()
+void ReportHumidity()
 {
     zunoSendReport(ZUNO_REPORT_HUMIDITY);
 }
