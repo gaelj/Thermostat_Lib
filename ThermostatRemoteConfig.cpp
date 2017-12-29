@@ -7,12 +7,9 @@
 
 #include "ThermostatRemoteConfig.h"
 
-char* GotCommand = "GC=";
-char* GotValue = "GV=";
-
 Commands currentCommand = No_Command;
 byte currentValue = NO_VALUE;
-
+TimerClass TIMEOUT_TIMER(TIMEOUT_DELAY);
 
 void Remote_InitParameters()
 {
@@ -28,6 +25,11 @@ void Remote_InitParameters()
 
 void ProcessCommandValue()
 {
+    Serial.print("*** Processing cmd ");
+    Serial.print(currentCommand);
+    Serial.print(" ");
+    Serial.println(currentValue);
+
     if (currentCommand != No_Command && currentValue != NO_VALUE) {
         /*
         Serial.print(GotCommand);
@@ -88,20 +90,23 @@ void ProcessCommandValue()
         }
         currentCommand = No_Command;
         currentValue = NO_VALUE;
-    }/*
+        Serial.println("*** Cmd Processed");
+        TIMEOUT_TIMER.IsActive = false;
+    }
     else {
-        switch (currentCommand) {
-            case Get_Mode:
-                break;
-        }
-    }*/
+        TIMEOUT_TIMER.Start();
+    }
 }
 
 void Remote_SetCommand(Commands command)
 {
-    /*
-    Serial.print(GotCommand);
-    Serial.println(command);*/
+    Serial.print(millis());
+    Serial.print(" C=");
+    Serial.println(command);
+    
+    if (TIMEOUT_TIMER.IsActive && TIMEOUT_TIMER.IsElapsed()) {
+        currentValue = NO_VALUE;
+    }
 
     currentCommand = command;
     ProcessCommandValue();
@@ -109,9 +114,13 @@ void Remote_SetCommand(Commands command)
 
 void Remote_SetValue(byte value)
 {
-    /*
-    Serial.print(GotValue);
-    Serial.println(value);*/
+    Serial.print(millis());
+    Serial.print(" V=");
+    Serial.println(value);
+
+    if (TIMEOUT_TIMER.IsActive && TIMEOUT_TIMER.IsElapsed()) {
+        currentCommand = No_Command;
+    }
 
     currentValue = value;
     ProcessCommandValue();

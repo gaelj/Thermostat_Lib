@@ -12,8 +12,10 @@
 #include "globals.h"
 #include "enumerations.h"
 #include "zwave_encoding.h"
+#include "timer.h"
 
 #define NO_VALUE        0xFF
+#define TIMEOUT_DELAY   500
 
 enum Commands {
     No_Command,                 // 0

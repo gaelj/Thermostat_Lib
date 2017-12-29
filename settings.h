@@ -17,7 +17,9 @@
 #define BOILER_MIN_TIME             1 * 60000   // min time between boiler state changes
 
 #define LOOP_DELAY                  10          // min loop period (including loop execution time)
-#define ZWAVE_PERIOD                30000       // ZWave refresh period (ZWave spec requires min 30s)
+#define ZWAVE_LONG_PERIOD           30000       // ZWave refresh period (ZWave spec requires min 30s)
+#define ZWAVE_SHORT_PERIOD          3000
+#define MODE_SET_DELAY_PERIOD       1000
 #define READ_SENSOR_PERIOD          10000       // temperature sensor refresh period (millis)
 #define OLED_PAGE_PERIOD            5000        // time during which each paged is displayed before moving on to the next one
 #define LED_BLINK_PERIOD            1500

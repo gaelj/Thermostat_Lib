@@ -3,8 +3,8 @@
 static ButtonClass BUTTON1(PIN_BUTTON1);
 static ButtonClass BUTTON2(PIN_BUTTON2);
 
-bool button1Unhandled = false;
-bool button2Unhandled = false;
+bool button1Handled = true;
+bool button2Handled = true;
 
 ButtonActions ReadButtons()
 {
@@ -12,22 +12,24 @@ ButtonActions ReadButtons()
     ButtonStateChange Event2 = BUTTON2.ReadButton();
 
     if (Event1 == OnPressed)
-        button1Unhandled = true;
+        button1Handled = false;
+
     if (Event2 == OnPressed)
-        button2Unhandled = true;
+        button2Handled = false;
     
-    if (button1Unhandled && button2Unhandled) {
-        button1Unhandled = false;
-        button2Unhandled = false;
+    if (!button1Handled && !button2Handled) {
+        button1Handled = true;
+        button2Handled = true;
         return Button12;
     }
 
-    if (Event1 == OnReleased && button1Unhandled) {
-        button1Unhandled = false;
+    if (Event1 == OnReleased && !button1Handled) {
+        button1Handled = true;
         return Button1;
     }
-    if (Event2 == OnReleased && button2Unhandled) {
-        button2Unhandled = false;
+
+    if (Event2 == OnReleased && !button2Handled) {
+        button2Handled = true;
         return Button2;
     }
 }
