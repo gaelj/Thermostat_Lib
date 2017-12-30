@@ -16,7 +16,6 @@
 #include "radiator.h"
 
 #define NO_VALUE        0xFF
-#define TIMEOUT_DELAY   1000
 
 enum Commands {
     No_Command,                  // 0

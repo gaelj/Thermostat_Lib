@@ -9,7 +9,6 @@
 
 Commands currentCommand = No_Command;
 byte currentValue = NO_VALUE;
-TimerClass TIMEOUT_TIMER(TIMEOUT_DELAY);
 
 void Remote_InitParameters()
 {
@@ -19,6 +18,8 @@ void Remote_InitParameters()
 
     Prm.baseExteriorHumidity = 0;
     Prm.floatExteriorHumidity = 0;
+
+    Prm.IlluminationPower = true;
 
     for (byte i = 0; i < 6; i++) {
         Radiators[i].baseSetPoint = 50;
@@ -33,7 +34,14 @@ byte GetRadId(byte commandBase)
 
 void ProcessCommandValue()
 {
+    Serial.print(millis());
+    Serial.print(" Processing cmd: ");
+    Serial.print(currentCommand);
+    Serial.print(" value: ");
+    Serial.print(currentValue);
+
     if (currentCommand != No_Command && currentValue != NO_VALUE) {
+
         byte radiatorId = 0xFF;
 
         switch (currentCommand) {
@@ -117,44 +125,22 @@ void ProcessCommandValue()
 
         Prm.ExteriorHumidity = float(Prm.baseExteriorHumidity) + (float(Prm.floatExteriorHumidity) / 100.0f);
 
-        Serial.print("*** Cmd processed: ");
-        Serial.print(currentCommand);
-        Serial.print(" ");
-        Serial.println(currentValue);
-
         currentCommand = No_Command;
         currentValue = NO_VALUE;
-        TIMEOUT_TIMER.IsActive = false;
+        Serial.println(" OK");
     }
     else {
-        TIMEOUT_TIMER.Start();
+        Serial.println(" NG");
     }
 }
 
 void Remote_SetCommand(Commands command)
 {
-    Serial.print(millis());
-    Serial.print(" C=");
-    Serial.println(command);
-    
-    if (TIMEOUT_TIMER.IsActive && TIMEOUT_TIMER.IsElapsed()) {
-        currentValue = NO_VALUE;
-    }
-
     currentCommand = command;
-    ProcessCommandValue();
 }
 
 void Remote_SetValue(byte value)
 {
-    Serial.print(millis());
-    Serial.print(" V=");
-    Serial.println(value);
-
-    if (TIMEOUT_TIMER.IsActive && TIMEOUT_TIMER.IsElapsed()) {
-        currentCommand = No_Command;
-    }
-
     currentValue = value;
     ProcessCommandValue();
 }
