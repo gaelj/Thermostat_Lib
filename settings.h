@@ -18,7 +18,7 @@
 
 #define LOOP_DELAY                  10          // min loop period (including loop execution time)
 #define ZWAVE_LONG_PERIOD           30000       // ZWave refresh period (ZWave spec requires min 30s)
-#define ZWAVE_SHORT_PERIOD          3000
+#define ZWAVE_SHORT_PERIOD          4000
 #define MODE_SET_DELAY_PERIOD       1000
 #define READ_SENSOR_PERIOD          10000       // temperature sensor refresh period (millis)
 #define OLED_PAGE_PERIOD            5000        // time during which each paged is displayed before moving on to the next one
@@ -29,25 +29,25 @@
 #define LED_ANIMATION_MAX_PERIOD    1000
 #define LED_ANIMATION_TOTAL_PERIOD  30000
 
-#define LED_COUNT       3
-#define FLASHES         3 // 0-1-0
-#define FLASH_QUEUE_LEN 32
+#define LED_COUNT                   3
+#define FLASHES                     3 // 0-1-0
+#define FLASH_QUEUE_LEN             32
 
-#define BOILER_BLINK_COLOR      COLOR_RED
-#define SET_SETPOINT_COLOR      COLOR_BLUE
-#define GET_SETPOINT_COLOR      COLOR_YELLOW
-#define GET_TEMPRATURE_COLOR    COLOR_GREEN
-#define ZUNO_CALLBACK_COLOR     COLOR_WHITE
+#define BOILER_BLINK_COLOR          COLOR_RED
+#define SET_SETPOINT_COLOR          COLOR_BLUE
+#define GET_SETPOINT_COLOR          COLOR_YELLOW
+#define GET_TEMPRATURE_COLOR        COLOR_GREEN
+#define ZUNO_CALLBACK_COLOR         COLOR_WHITE
 
-#define DEFAULT_Setpoint_Frost  5.0
-#define DEFAULT_Setpoint_Absent 14.0
-#define DEFAULT_Setpoint_Night  15.0
-#define DEFAULT_Setpoint_Day    19.0
-#define DEFAULT_Setpoint_Warm   22.0
-#define DEFAULT_Kp              0.5
-#define DEFAULT_Ki              0.0
-#define DEFAULT_Kd              0.0
-#define DEFAULT_SampleTime      10 * 60000
+#define DEFAULT_Setpoint_Frost      5.0
+#define DEFAULT_Setpoint_Absent     14.0
+#define DEFAULT_Setpoint_Night      15.0
+#define DEFAULT_Setpoint_Day        19.0
+#define DEFAULT_Setpoint_Warm       22.0
+#define DEFAULT_Kp                  0.5
+#define DEFAULT_Ki                  0.0
+#define DEFAULT_Kd                  0.0
+#define DEFAULT_SampleTime          10 * 60000
 
 /**
  * @brief Access to the settings

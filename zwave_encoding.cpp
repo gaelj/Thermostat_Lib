@@ -64,3 +64,8 @@ float MillisToMinutes(unsigned long m)
 {
     return float(m / 1000) / 60;
 }
+
+float CalculateTemperature(byte baseVal, byte floatVal)
+{
+    return float(baseVal) - 50.0f + (float(floatVal) / 100.0f);
+}

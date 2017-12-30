@@ -32,4 +32,6 @@ ButtonActions ReadButtons()
         button2Handled = true;
         return Button2;
     }
+
+    return NoButtonAction;
 }

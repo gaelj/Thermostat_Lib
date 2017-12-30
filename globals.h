@@ -1,8 +1,10 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <Arduino.h>
 #include "enumerations.h"
 #include "timer.h"
+#include "radiator.h"
 
 extern float SensorTemperature;
 extern float SensorHumidity;
@@ -16,5 +18,7 @@ extern byte ztxCommand;
 extern byte ztxValue;
 extern byte zrxCommand;
 extern byte zrxValue;
+
+extern radiator_s Radiators[6];
 
 #endif // GLOBALS_H

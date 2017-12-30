@@ -48,17 +48,13 @@ struct settings_s {
 */
 struct params_s {
     ThermostatMode CurrentThermostatMode;
-    byte RadiatorCount;
-    byte ActiveRadiator;
-    float RadiatorSetpoint;
-    float RadiatorTemperature;
 
-    float baseExteriorTemperature;
-    float floatExteriorTemperature;
+    byte baseExteriorTemperature;
+    byte floatExteriorTemperature;
     float ExteriorTemperature;
 
-    float baseExteriorHumidity;
-    float floatExteriorHumidity;
+    byte baseExteriorHumidity;
+    byte floatExteriorHumidity;
     float ExteriorHumidity;
 
     float ExteriorPressure;

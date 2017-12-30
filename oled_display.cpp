@@ -14,24 +14,58 @@ static TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
 static StringBuilderClass BLOCK;
 static StringConverterClass CONV;
 
-static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 12, PARAMETER_COUNT };
+static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, 18, PARAMETER_COUNT };
+
+static char* oledStrings[PARAMETER_COUNT] = {
+    "Inside temp",
+    "In temp delta",
+    "Inside hum",
+    "Outside temp",
+    "Outside hum",
+
+    "Bureau SP",
+    "Bureau tmp",
+    "Chambre SP",
+    "Chambre tmp",
+    "Palier SP",
+    "Palier tmp",
+
+    "PID last inp",
+    "PID last out",
+    "PID output sum",
+    "PID error",
+    "PID dInput",
+    "PID progr",
+    "PID dur",
+
+    "Boiler progr",
+    "Boiler dur",
+};
 
 OledDisplayClass::OledDisplayClass(PID* pid): PIDREG(pid)
 {
-    currentValuePointers[0] = &SensorTemperature;
-    currentValuePointers[1] = &Prm.TempDelta;
-    currentValuePointers[2] = &SensorHumidity;
-    currentValuePointers[3] = &Prm.ExteriorTemperature;
-    currentValuePointers[4] = &Prm.ExteriorHumidity;
-    currentValuePointers[5] = &PIDREG->lastInput;
-    currentValuePointers[6] = &PIDREG->lastOutput;
-    currentValuePointers[7] = &PIDREG->outputSum;
-    currentValuePointers[8] = &PIDREG->error;
-    currentValuePointers[9] = &PIDREG->dInput;
-    currentValuePointers[10] = &PID_TIMER.Progress;
-    currentValuePointers[11] = &PID_TIMER.Duration;
-    currentValuePointers[12] = &BOILER_ON_TIMER.Progress;
-    currentValuePointers[13] = &BOILER_ON_TIMER.Duration;
+    byte i = 0;
+    currentValuePointers[i++] = &SensorTemperature;
+    currentValuePointers[i++] = &Prm.TempDelta;
+    currentValuePointers[i++] = &SensorHumidity;
+    currentValuePointers[i++] = &Prm.ExteriorTemperature;
+    currentValuePointers[i++] = &Prm.ExteriorHumidity;
+
+    for (byte rad = 0; rad < 3; rad++) {
+        currentValuePointers[i++] = &Radiators[rad].SetPoint;
+        currentValuePointers[i++] = &Radiators[rad].Temperature;
+    }
+
+    currentValuePointers[i++] = &PIDREG->lastInput;
+    currentValuePointers[i++] = &PIDREG->lastOutput;
+    currentValuePointers[i++] = &PIDREG->outputSum;
+    currentValuePointers[i++] = &PIDREG->error;
+    currentValuePointers[i++] = &PIDREG->dInput;
+    currentValuePointers[i++] = &PID_TIMER.Progress;
+    currentValuePointers[i++] = &PID_TIMER.Duration;
+
+    currentValuePointers[i++] = &BOILER_ON_TIMER.Progress;
+    currentValuePointers[i++] = &BOILER_ON_TIMER.Duration;
 
     currentPage = 0;
     modeBlinkState = false;
@@ -130,7 +164,7 @@ void OledDisplayClass::AppendLine(char* text, float value)
 
     // Append value
     CONV.Init();
-    CONV.fixPrint(int(value * 100), 2);
+    CONV.fixPrint(int(value * 10), 1);
     char* conv = CONV.GetText();
     BLOCK.AppendString(conv);
 

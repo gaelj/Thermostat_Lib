@@ -14,12 +14,13 @@
 #include "enumerations.h"
 #include "zwave_encoding.h"
 #include "led_control.h"
+#include "radiator.h"
 
-#define OLED_PAGE_COUNT     3
+#define OLED_PAGE_COUNT     4
 #define OLED_CLEAR_DELAY    5  // millis
 #define OLED_BLINK_PERIOD   1000 // millis
 #define OLED_ROWHEADER_LEN  15
-#define PARAMETER_COUNT     14
+#define PARAMETER_COUNT     20
 #define ICONS_ROW           5
 #define ICONS_COL1          20
 #define ICONS_COL2          80

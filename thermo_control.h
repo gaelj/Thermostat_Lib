@@ -12,7 +12,8 @@
 #include "ThermostatRemoteConfig.h"
 #include "zwave_communication.h"
 
-class ThermostatClass {
+class ThermostatClass
+{
 public:
     ThermostatClass(PID*);
     void Loop();

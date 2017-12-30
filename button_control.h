@@ -3,7 +3,7 @@
 #ifndef _BUTTON_CONTROL_h
 #define _BUTTON_CONTROL_h
 
-#include "Arduino.h"
+#include <Arduino.h>
 #include "globals.h"
 #include "button.h"
 #include "pinout.h"
