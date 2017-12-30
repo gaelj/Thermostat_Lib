@@ -2,7 +2,6 @@
 #include <ZUNO_OLED_I2C.h>
 #include <ZUNO_OLED_FONT_NUMB16.h>
 #include "icons.h"
-#include "oled_strings.h"
 #include "timer.h"
 #include "settings.h"
 
@@ -14,13 +13,25 @@ static TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
 static StringBuilderClass BLOCK;
 static StringConverterClass CONV;
 
+bool modeBlinkState;
+byte lastBoilerState;
+ThermostatMode lastMode;
+float previousValues[PARAMETER_COUNT];
+float* currentValuePointers[PARAMETER_COUNT];
+byte currentPage;
+bool forceRedraw;
+
+bool ValuesOnCurrentPageHaveChanged();
+void AppendLine(char* text, float value);
+void AppendEmptyLine(unsigned int startOfLineLength);
+
 static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, 18, PARAMETER_COUNT };
 
 static char* oledStrings[PARAMETER_COUNT] = {
-    "Inside temp",
-    "In temp delta",
+    "Inside tmp",
+    "Inside delta",
     "Inside hum",
-    "Outside temp",
+    "Outside tmp",
     "Outside hum",
 
     "Bureau SP",
@@ -30,19 +41,19 @@ static char* oledStrings[PARAMETER_COUNT] = {
     "Palier SP",
     "Palier tmp",
 
-    "PID last inp",
-    "PID last out",
-    "PID output sum",
-    "PID error",
-    "PID dInput",
-    "PID progr",
+    "PID lst inp",
+    "PID lst out",
+    "PID out sum",
+    "PID err",
+    "PID dInp",
+    "PID prg",
     "PID dur",
 
-    "Boiler progr",
+    "Boiler prg",
     "Boiler dur",
 };
 
-OledDisplayClass::OledDisplayClass(PID* pid): PIDREG(pid)
+void OledDisplay_Init()
 {
     byte i = 0;
     currentValuePointers[i++] = &SensorTemperature;
@@ -56,11 +67,11 @@ OledDisplayClass::OledDisplayClass(PID* pid): PIDREG(pid)
         currentValuePointers[i++] = &Radiators[rad].Temperature;
     }
 
-    currentValuePointers[i++] = &PIDREG->lastInput;
-    currentValuePointers[i++] = &PIDREG->lastOutput;
-    currentValuePointers[i++] = &PIDREG->outputSum;
-    currentValuePointers[i++] = &PIDREG->error;
-    currentValuePointers[i++] = &PIDREG->dInput;
+    currentValuePointers[i++] = &PIDREG.lastInput;
+    currentValuePointers[i++] = &PIDREG.lastOutput;
+    currentValuePointers[i++] = &PIDREG.outputSum;
+    currentValuePointers[i++] = &PIDREG.error;
+    currentValuePointers[i++] = &PIDREG.dInput;
     currentValuePointers[i++] = &PID_TIMER.Progress;
     currentValuePointers[i++] = &PID_TIMER.Duration;
 
@@ -80,7 +91,7 @@ OledDisplayClass::OledDisplayClass(PID* pid): PIDREG(pid)
 * @brief Display the next page on the display
 *
 */
-void OledDisplayClass::ShowNextPage()
+void OledDisplay_ShowNextPage()
 {
     currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
     forceRedraw = true;
@@ -90,7 +101,7 @@ void OledDisplayClass::ShowNextPage()
 * @brief Draw the screen
 *
 */
-void OledDisplayClass::DrawDisplay()
+void OledDisplay_DrawDisplay()
 {
     /*bool timerElapsed = false;
     if (PAGE_TIMER.IsElapsed()) {
@@ -101,12 +112,16 @@ void OledDisplayClass::DrawDisplay()
     bool redraw = ValuesOnCurrentPageHaveChanged();
     redraw = redraw || forceRedraw/*|| timerElapsed*/;
     if (redraw) {
-        SCREEN.clrscr();
-        delay(OLED_CLEAR_DELAY);
-
+        //SCREEN.clrscr();
+        //delay(OLED_CLEAR_DELAY);
+        byte i = 0;
         BLOCK.Init();
-        for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++)
+        for (i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
             AppendLine(oledStrings[i], *currentValuePointers[i]);
+        }
+        for (i = paramStartByPage[currentPage + 1] - paramStartByPage[currentPage]; i < (currentPage == 0 ? OLED_TEXT_LINE_COUNT_P1 : OLED_TEXT_LINE_COUNT); i++) {
+            AppendEmptyLine(0);
+        }
 
         SCREEN.gotoXY(0, 0);
         SCREEN.print(BLOCK.GetText());
@@ -152,15 +167,15 @@ void OledDisplayClass::DrawDisplay()
     forceRedraw = false;
 }
 
-void OledDisplayClass::AppendLine(char* text, float value)
+void AppendLine(char* text, float value)
 {
     // Write definition string
     BLOCK.AppendString(text);
     
     // End-pad with spaces
     unsigned int len = strlen(text);
-    if (len < OLED_ROWHEADER_LEN)
-        BLOCK.PadRight(" ", OLED_ROWHEADER_LEN - len);
+    //if (len < OLED_ROWHEADER_LEN)
+    BLOCK.PadRight(" ", OLED_ROWHEADER_LEN - len);
 
     // Append value
     CONV.Init();
@@ -168,15 +183,22 @@ void OledDisplayClass::AppendLine(char* text, float value)
     char* conv = CONV.GetText();
     BLOCK.AppendString(conv);
 
-    // Append newline
-    BLOCK.AppendString("\n");
+    // End-pad with spaces
+    len = OLED_ROWHEADER_LEN + strlen(conv);
+    AppendEmptyLine(len);
+}
+
+void AppendEmptyLine(unsigned int startOfLineLength)
+{
+    BLOCK.PadRight(" ", OLED_TEXT_ROW_LEN - startOfLineLength);
+    //BLOCK.AppendString("\n");
 }
 
 /**
 * @brief Set the OLED display power on or off
 *
 */
-void OledDisplayClass::SetPower(bool value)
+void OledDisplay_SetPower(bool value)
 {
     if (value) {
         SCREEN.on();
@@ -190,7 +212,7 @@ void OledDisplayClass::SetPower(bool value)
 * @brief Should the display be redrawn, due to source data update. Reads the temperature sensor
 *
 */
-bool OledDisplayClass::ValuesOnCurrentPageHaveChanged()
+bool ValuesOnCurrentPageHaveChanged()
 {
     // Check for changes
     bool ret = false;

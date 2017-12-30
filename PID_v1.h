@@ -56,4 +56,7 @@ private:
     float* mySetpoint;
     bool inAuto;
 };
+
+extern PID PIDREG;
+
 #endif // PID_v1_h

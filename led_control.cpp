@@ -15,8 +15,6 @@ static TimerClass FLASH_TIMER(LED_FLASH_PERIOD);
 static TimerClass ANIMATION_TIMER(LED_ANIMATION_STEP_PERIOD);
 static TimerClass TEMP_CHANGE_TIMER(LED_ANIMATION_TOTAL_PERIOD);
 
-static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
-
 bool ledBlinkState = false;
 byte flashColor = COLOR_BLACK;
 byte flashCounter = 0;

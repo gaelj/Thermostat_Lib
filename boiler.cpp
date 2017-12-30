@@ -7,7 +7,7 @@
 #include "boiler.h"
 
 TimerClass SAFETY_TIMER(BOILER_MIN_TIME);
-bool CurrentBoilerState = SWITCH_ON;
+bool CurrentBoilerState = SWITCH_ON; // inital ON to allow forced OFF at startup
 
 /**
  * @brief Set the state of the boiler to on or off, unless the last state change was too recent

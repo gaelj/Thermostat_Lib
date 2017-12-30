@@ -8,19 +8,23 @@
 
 TimerClass BOILER_ON_TIMER(0);
 TimerClass PID_TIMER(BOILER_MIN_TIME);
+float LastOutput;
+float newOutput;
+float setPoint;
+ThermostatMode CurrentThermostatMode;
+
 
  /**
   * @brief Constructor. Turns the boiler off
   *
   */
-ThermostatClass::ThermostatClass(PID* pid) :
-    PIDREG(pid)
+void Thermostat_Init()
 {
     PID_TIMER.DurationInMillis = TheSettings.SampleTime;
     SetBoilerState(SWITCH_OFF);
     LastOutput = 0;
-    PIDREG->Create(SensorTemperature, 0, 1, &SensorTemperature, &setPoint);
-    PIDREG->SetMode(AUTOMATIC);
+    PIDREG.Create(SensorTemperature, 0, 1, &SensorTemperature, &setPoint);
+    PIDREG.SetMode(AUTOMATIC);
     CurrentThermostatMode = Prm.CurrentThermostatMode;
 }
 
@@ -29,7 +33,7 @@ ThermostatClass::ThermostatClass(PID* pid) :
  *
  * @return int      0 if OK, -1 in case of error
  */
-void ThermostatClass::Loop()
+void Thermostat_Loop()
 {
     // Turn off boiler if setpoint is reached
     if (SensorTemperature < setPoint)
@@ -44,7 +48,7 @@ void ThermostatClass::Loop()
     setPoint = Settings_GetSetPoint(Prm.CurrentThermostatMode);
 
     if (PID_TIMER.IsElapsedRestart()) {
-        newOutput = PIDREG->Compute();
+        newOutput = PIDREG.Compute();
         if (newOutput != -1)
             LastOutput = newOutput;
         if (LastOutput > 0) {

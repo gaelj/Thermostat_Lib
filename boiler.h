@@ -3,8 +3,8 @@
 
 #include <Arduino.h>
 #include "globals.h"
-#include <ZUNO_legacy_channels.h>
-#include <ZUNO_channels.h>
+//#include <ZUNO_legacy_channels.h>
+//#include <ZUNO_channels.h>
 #include <ZUNO_Definitions.h>
 #include "settings.h"
 #include "timer.h"

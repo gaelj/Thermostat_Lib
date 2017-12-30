@@ -12,18 +12,7 @@
 #include "ThermostatRemoteConfig.h"
 #include "zwave_communication.h"
 
-class ThermostatClass
-{
-public:
-    ThermostatClass(PID*);
-    void Loop();
-
-private:
-    PID* PIDREG;
-    float LastOutput;
-    float newOutput;
-    float setPoint;
-    ThermostatMode CurrentThermostatMode;
-};
+void Thermostat_Init();
+void Thermostat_Loop();
 
 #endif // THERMOSTAT_H

@@ -7,6 +7,9 @@
 #include "led.h"
 #include "enumerations.h"
 
+//#define LOGGING_ACTIVE
+#undef LOGGING_ACTIVE
+
 #define E2P_VERSION                 2           // change this value to apply default settings on first boot after flash
 #define E2P_START_ADDRESS           1
 
@@ -28,6 +31,7 @@
 #define LED_ANIMATION_MIN_PERIOD    100
 #define LED_ANIMATION_MAX_PERIOD    1000
 #define LED_ANIMATION_TOTAL_PERIOD  30000
+static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
 
 #define LED_COUNT                   3
 #define FLASHES                     3 // 0-1-0

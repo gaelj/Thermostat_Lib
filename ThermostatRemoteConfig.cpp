@@ -34,11 +34,13 @@ byte GetRadId(byte commandBase)
 
 void ProcessCommandValue()
 {
+#ifdef LOGGING_ACTIVE
     Serial.print(millis());
     Serial.print(" Processing cmd: ");
     Serial.print(currentCommand);
     Serial.print(" value: ");
     Serial.print(currentValue);
+#endif // LOGGING_ACTIVE
 
     if (currentCommand != No_Command && currentValue != NO_VALUE) {
 
@@ -127,10 +129,14 @@ void ProcessCommandValue()
 
         currentCommand = No_Command;
         currentValue = NO_VALUE;
+#ifdef LOGGING_ACTIVE
         Serial.println(" OK");
+#endif // LOGGING_ACTIVE
     }
     else {
+#ifdef LOGGING_ACTIVE
         Serial.println(" NG");
+#endif // LOGGING_ACTIVE
     }
 }
 

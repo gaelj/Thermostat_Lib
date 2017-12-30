@@ -100,6 +100,7 @@ bool Settings_PersistSettings()
 */
 void Settings_Dump()
 {
+#ifdef LOGGING_ACTIVE
     //Serial.println("============ Settings:");
     Serial.println(TheSettings.Version);
     Serial.println(TheSettings.Setpoint_Frost);
@@ -120,4 +121,5 @@ void Settings_Dump()
     Serial.println(TheSettings.SampleTime);
     Serial.println(TheSettings.crc8);
     //Serial.println("============");
+#endif // LOGGING_ACTIVE
 }

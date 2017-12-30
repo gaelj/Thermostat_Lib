@@ -5,6 +5,7 @@
 #include "enumerations.h"
 #include "timer.h"
 #include "radiator.h"
+#include "PID_v1.h"
 
 extern float SensorTemperature;
 extern float SensorHumidity;
