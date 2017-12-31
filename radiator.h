@@ -4,12 +4,7 @@
 #include <Arduino.h>
 
 struct radiator_s {
-    byte baseSetPoint;
-    byte floatSetPoint;
     float SetPoint;
-
-    byte baseTemperature;
-    byte floatTemperature;
     float Temperature;
 };
 

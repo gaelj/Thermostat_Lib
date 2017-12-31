@@ -22,8 +22,8 @@
 #define OLED_TEXT_ROW_LEN       21
 #define OLED_CLEAR_DELAY        2  // millis
 #define OLED_BLINK_PERIOD       1000 // millis
-#define OLED_ROWHEADER_LEN      15
-#define PARAMETER_COUNT         20
+#define OLED_ROWHEADER_LEN      14
+#define PARAMETER_COUNT         21
 #define ICONS_ROW               5
 #define ICONS_COL1              20
 #define ICONS_COL2              80

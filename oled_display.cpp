@@ -8,7 +8,6 @@
 
 static OLED SCREEN;
 static TimerClass MODE_BLINK_TIMER(OLED_BLINK_PERIOD);
-//static TimerClass PAGE_TIMER(OLED_PAGE_PERIOD);
 
 static StringBuilderClass BLOCK;
 static StringConverterClass CONV;
@@ -18,21 +17,23 @@ byte lastBoilerState;
 ThermostatMode lastMode;
 float previousValues[PARAMETER_COUNT];
 float* currentValuePointers[PARAMETER_COUNT];
-byte currentPage;
+byte currentPage = OLED_PAGE_COUNT;
 bool forceRedraw;
 
 bool ValuesOnCurrentPageHaveChanged();
-void AppendLine(char* text, float value);
+void AppendLine(char* text, float value, char* unit);
 void AppendEmptyLine(unsigned int startOfLineLength);
+
+float prog = -1.0f;
 
 static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, 18, PARAMETER_COUNT };
 
 static char* oledStrings[PARAMETER_COUNT] = {
     "Inside tmp",
-    "Inside delta",
     "Inside hum",
     "Outside tmp",
     "Outside hum",
+    "Barometer",
 
     "Bureau SP",
     "Bureau tmp",
@@ -51,16 +52,60 @@ static char* oledStrings[PARAMETER_COUNT] = {
 
     "Boiler prg",
     "Boiler dur",
+    "Inside delta",
 };
+
+static char* unitStrings[] = {
+    "",
+    "%",
+    "C",
+    "mn"
+};
+
+enum Units {
+    UnitNone,
+    UnitPercentage,
+    UnitCelcius,
+    UnitMinutes
+};
+
+static Units UnitsPerString[PARAMETER_COUNT] = {
+    UnitCelcius,
+    UnitPercentage,
+    UnitCelcius,
+    UnitPercentage,
+    UnitNone,
+
+    UnitCelcius,
+    UnitCelcius,
+    UnitCelcius,
+    UnitCelcius,
+    UnitCelcius,
+    UnitCelcius,
+
+    UnitCelcius,
+    UnitNone,
+    UnitNone,
+    UnitCelcius,
+    UnitCelcius,
+    UnitPercentage,
+    UnitMinutes,
+
+    UnitPercentage,
+    UnitMinutes,
+    UnitCelcius
+};
+
+static char* LoadingString = "Loading: ";
 
 void OledDisplay_Init()
 {
     byte i = 0;
     currentValuePointers[i++] = &SensorTemperature;
-    currentValuePointers[i++] = &Prm.TempDelta;
     currentValuePointers[i++] = &SensorHumidity;
     currentValuePointers[i++] = &Prm.ExteriorTemperature;
     currentValuePointers[i++] = &Prm.ExteriorHumidity;
+    currentValuePointers[i++] = &Prm.ExteriorPressure;
 
     for (byte rad = 0; rad < 3; rad++) {
         currentValuePointers[i++] = &Radiators[rad].SetPoint;
@@ -77,8 +122,8 @@ void OledDisplay_Init()
 
     currentValuePointers[i++] = &BOILER_ON_TIMER.Progress;
     currentValuePointers[i++] = &BOILER_ON_TIMER.Duration;
+    currentValuePointers[i++] = &Prm.TempDelta;
 
-    currentPage = 0;
     modeBlinkState = false;
     forceRedraw = true;
     SCREEN.begin();
@@ -93,7 +138,9 @@ void OledDisplay_Init()
 */
 void OledDisplay_ShowNextPage()
 {
-    currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
+    if (currentPage != OLED_PAGE_COUNT) {
+        currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
+    }
     forceRedraw = true;
 }
 
@@ -103,24 +150,27 @@ void OledDisplay_ShowNextPage()
 */
 void OledDisplay_DrawDisplay()
 {
-    /*bool timerElapsed = false;
-    if (PAGE_TIMER.IsElapsed()) {
-        PAGE_TIMER.Start();
-        currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
-        timerElapsed = true;
-    }*/
     bool redraw = ValuesOnCurrentPageHaveChanged();
-    redraw = redraw || forceRedraw/*|| timerElapsed*/;
+    redraw = redraw || forceRedraw;
     if (redraw) {
-        //SCREEN.clrscr();
-        //delay(OLED_CLEAR_DELAY);
         byte i = 0;
         BLOCK.Init();
-        for (i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
-            AppendLine(oledStrings[i], *currentValuePointers[i]);
+        if (currentPage == OLED_PAGE_COUNT) {
+            prog = (float(int(currentCommand) * 100)) / ZWAVE_MSG_COUNT;
+            for (i = 0; i < 2; i++)
+                AppendEmptyLine(0);
+            AppendLine(LoadingString, prog, unitStrings[UnitPercentage]);
+            
+            if (currentCommand == ZWAVE_MSG_COUNT)
+                currentPage = 0;
         }
-        for (i = paramStartByPage[currentPage + 1] - paramStartByPage[currentPage]; i < (currentPage == 0 ? OLED_TEXT_LINE_COUNT_P1 : OLED_TEXT_LINE_COUNT); i++) {
-            AppendEmptyLine(0);
+        else {
+            for (i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
+                AppendLine(oledStrings[i], *currentValuePointers[i], unitStrings[UnitsPerString[i]]);
+            }
+            for (i = paramStartByPage[currentPage + 1] - paramStartByPage[currentPage]; i < (currentPage == 0 ? OLED_TEXT_LINE_COUNT_P1 : OLED_TEXT_LINE_COUNT); i++) {
+                AppendEmptyLine(0);
+            }
         }
 
         SCREEN.gotoXY(0, 0);
@@ -167,7 +217,7 @@ void OledDisplay_DrawDisplay()
     forceRedraw = false;
 }
 
-void AppendLine(char* text, float value)
+void AppendLine(char* text, float value, char* unit)
 {
     // Write definition string
     BLOCK.AppendString(text);
@@ -181,6 +231,7 @@ void AppendLine(char* text, float value)
     CONV.Init();
     CONV.fixPrint(int(value * 10), 1);
     char* conv = CONV.GetText();
+    strcat(conv, unit);
     BLOCK.AppendString(conv);
 
     // End-pad with spaces
@@ -191,7 +242,6 @@ void AppendLine(char* text, float value)
 void AppendEmptyLine(unsigned int startOfLineLength)
 {
     BLOCK.PadRight(" ", OLED_TEXT_ROW_LEN - startOfLineLength);
-    //BLOCK.AppendString("\n");
 }
 
 /**
@@ -215,6 +265,9 @@ void OledDisplay_SetPower(bool value)
 bool ValuesOnCurrentPageHaveChanged()
 {
     // Check for changes
+    if (currentPage == OLED_PAGE_COUNT)
+        return prog != ((float(int(currentCommand) * 100)) / ZWAVE_MSG_COUNT);
+
     bool ret = false;
     for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
         if (previousValues[i] != *currentValuePointers[i]) {
