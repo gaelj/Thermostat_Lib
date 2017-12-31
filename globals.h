@@ -22,4 +22,6 @@ extern byte zrxValue;
 
 extern radiator_s Radiators[6];
 
+extern Commands currentCommand;
+
 #endif // GLOBALS_H

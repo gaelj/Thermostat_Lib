@@ -13,17 +13,13 @@ byte currentValue = NO_VALUE;
 void Remote_InitParameters()
 {
     Prm.CurrentThermostatMode = Absent;
-    Prm.baseExteriorTemperature = 50;
-    Prm.floatExteriorTemperature = 0;
-
-    Prm.baseExteriorHumidity = 0;
-    Prm.floatExteriorHumidity = 0;
-
+    Prm.ExteriorTemperature = 0;
+    Prm.ExteriorHumidity = 0;
     Prm.IlluminationPower = true;
 
     for (byte i = 0; i < 6; i++) {
-        Radiators[i].baseSetPoint = 50;
-        Radiators[i].floatSetPoint = 0;
+        Radiators[i].SetPoint = 0;
+        Radiators[i].Temperature = 0;
     }
 }
 
@@ -43,7 +39,6 @@ void ProcessCommandValue()
 #endif // LOGGING_ACTIVE
 
     if (currentCommand != No_Command && currentValue != NO_VALUE) {
-
         byte radiatorId = 0xFF;
 
         switch (currentCommand) {
@@ -58,7 +53,7 @@ void ProcessCommandValue()
             case Get_Radiator4Setpoint1:
             case Get_Radiator5Setpoint1:
                 radiatorId = GetRadId(Get_Radiator0Setpoint1);
-                Radiators[radiatorId].baseSetPoint = currentValue;
+                Radiators[radiatorId].SetPoint = float(currentValue) - 50.0f;
                 break;
             case Get_Radiator0Setpoint2:
             case Get_Radiator1Setpoint2:
@@ -67,7 +62,7 @@ void ProcessCommandValue()
             case Get_Radiator4Setpoint2:
             case Get_Radiator5Setpoint2:
                 radiatorId = GetRadId(Get_Radiator0Setpoint2);
-                Radiators[radiatorId].floatSetPoint = currentValue;
+                Radiators[radiatorId].SetPoint += float(currentValue) / 100.0f;
                 break;
 
             case Get_Radiator0Temperature1:
@@ -77,7 +72,7 @@ void ProcessCommandValue()
             case Get_Radiator4Temperature1:
             case Get_Radiator5Temperature1:
                 radiatorId = GetRadId(Get_Radiator0Temperature1);
-                Radiators[radiatorId].baseTemperature = currentValue;
+                Radiators[radiatorId].Temperature = float(currentValue) - 50.0f;
                 break;
             case Get_Radiator0Temperature2:
             case Get_Radiator1Temperature2:
@@ -86,58 +81,33 @@ void ProcessCommandValue()
             case Get_Radiator4Temperature2:
             case Get_Radiator5Temperature2:
                 radiatorId = GetRadId(Get_Radiator0Temperature2);
-                Radiators[radiatorId].floatTemperature = currentValue;
+                Radiators[radiatorId].Temperature += float(currentValue) / 100.0f;
                 break;
 
             case Get_ExteriorTemperature1:
-                Prm.baseExteriorTemperature = currentValue;
+                Prm.ExteriorTemperature = float(currentValue) - 50.0f;
                 break;
             case Get_ExteriorTemperature2:
-                Prm.floatExteriorTemperature = currentValue;
+                Prm.ExteriorTemperature += float(currentValue) / 100.0f;
                 break;
 
-            case Get_ExteriorHumidity1:
-                Prm.baseExteriorHumidity = currentValue;
-                break;
-            case Get_ExteriorHumidity2:
-                Prm.floatExteriorHumidity = currentValue;
+            case Get_ExteriorHumidity:
+                Prm.ExteriorHumidity = float(currentValue);
                 break;
 
-            case Get_ExteriorPressure1:
-                Prm.ExteriorPressure = currentValue;
-                break;
-            case Get_ExteriorPressure2:
-                Prm.ExteriorPressure += float(currentValue) / 100;
+            case Get_ExteriorPressure:
+                Prm.ExteriorPressure = float(currentValue) + 950.0f;
                 break;
         }
-
-        if (radiatorId != 0xFF) {
-            Radiators[radiatorId].SetPoint = CalculateTemperature(
-                Radiators[radiatorId].baseSetPoint,
-                Radiators[radiatorId].floatSetPoint);
-
-            Radiators[radiatorId].Temperature = CalculateTemperature(
-                Radiators[radiatorId].baseTemperature,
-                Radiators[radiatorId].floatTemperature);
-        }
-
-        Prm.ExteriorTemperature = CalculateTemperature(
-            Prm.baseExteriorTemperature,
-            Prm.floatExteriorTemperature);
-
-        Prm.ExteriorHumidity = float(Prm.baseExteriorHumidity) + (float(Prm.floatExteriorHumidity) / 100.0f);
-
-        currentCommand = No_Command;
-        currentValue = NO_VALUE;
 #ifdef LOGGING_ACTIVE
         Serial.println(" OK");
 #endif // LOGGING_ACTIVE
     }
-    else {
 #ifdef LOGGING_ACTIVE
+    else {
         Serial.println(" NG");
-#endif // LOGGING_ACTIVE
     }
+#endif // LOGGING_ACTIVE
 }
 
 void Remote_SetCommand(Commands command)
