@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include "enumerations.h"
 #include "timer.h"
-#include "radiator.h"
 #include "PID_v1.h"
 
 extern float SensorTemperature;
@@ -19,8 +18,6 @@ extern byte ztxCommand;
 extern byte ztxValue;
 extern byte zrxCommand;
 extern byte zrxValue;
-
-extern radiator_s Radiators[RADIATOR_COUNT];
 
 extern Commands currentCommand;
 extern byte currentPage;

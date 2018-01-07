@@ -55,7 +55,7 @@ struct params_s {
     bool IlluminationPower;
 };
 
-#define ZWAVE_MSG_COUNT     17
+#define ZWAVE_MSG_COUNT     5
 enum Commands {
     No_Command,                  // 0
 

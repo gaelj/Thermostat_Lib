@@ -16,7 +16,26 @@ bool modeBlinkState;
 byte lastBoilerState;
 ThermostatMode lastMode;
 float previousValues[PARAMETER_COUNT];
-float* currentValuePointers[PARAMETER_COUNT];
+float* currentValuePointers[PARAMETER_COUNT] = {
+    &SensorTemperature,
+    &SensorHumidity,
+    &Prm.ExteriorTemperature,
+    &Prm.ExteriorHumidity,
+    &Prm.ExteriorPressure,
+
+    &PIDREG.lastInput,
+    &PIDREG.lastSetpoint,
+    &PIDREG.lastOutput,
+    &PIDREG.outputSum,
+    &PIDREG.error,
+    &PIDREG.dInput,
+    &PID_TIMER.Progress,
+    &PID_TIMER.Duration,
+
+    &BOILER_ON_TIMER.Progress,
+    &BOILER_ON_TIMER.Duration,
+    &Prm.TempDelta
+};
 byte currentPage = OLED_PAGE_COUNT;
 bool forceRedraw;
 
@@ -26,7 +45,7 @@ void AppendEmptyLine(unsigned int startOfLineLength);
 
 float prog = -1.0f;
 
-static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, 19, PARAMETER_COUNT };
+static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 13, PARAMETER_COUNT };
 
 static char* oledStrings[PARAMETER_COUNT] = {
     "Inside tmp",
@@ -34,13 +53,6 @@ static char* oledStrings[PARAMETER_COUNT] = {
     "Outside tmp",
     "Outside hum",
     "Barometer",
-
-    "Bureau SP",
-    "Bureau tmp",
-    "Chambre SP",
-    "Chambre tmp",
-    "Palier SP",
-    "Palier tmp",
 
     "PID lst inp",
     "PID lst sp",
@@ -79,13 +91,6 @@ static Units UnitsPerString[PARAMETER_COUNT] = {
 
     UnitCelcius,
     UnitCelcius,
-    UnitCelcius,
-    UnitCelcius,
-    UnitCelcius,
-    UnitCelcius,
-
-    UnitCelcius,
-    UnitCelcius,
     UnitNone,
     UnitNone,
     UnitCelcius,
@@ -102,31 +107,6 @@ static char* LoadingString = "Loading";
 
 void OledDisplay_Init()
 {
-    byte i = 0;
-    currentValuePointers[i++] = &SensorTemperature;
-    currentValuePointers[i++] = &SensorHumidity;
-    currentValuePointers[i++] = &Prm.ExteriorTemperature;
-    currentValuePointers[i++] = &Prm.ExteriorHumidity;
-    currentValuePointers[i++] = &Prm.ExteriorPressure;
-
-    for (byte rad = 0; rad < RADIATOR_COUNT; rad++) {
-        currentValuePointers[i++] = &Radiators[rad].SetPoint;
-        currentValuePointers[i++] = &Radiators[rad].Temperature;
-    }
-
-    currentValuePointers[i++] = &PIDREG.lastInput;
-    currentValuePointers[i++] = &PIDREG.lastSetpoint;
-    currentValuePointers[i++] = &PIDREG.lastOutput;
-    currentValuePointers[i++] = &PIDREG.outputSum;
-    currentValuePointers[i++] = &PIDREG.error;
-    currentValuePointers[i++] = &PIDREG.dInput;
-    currentValuePointers[i++] = &PID_TIMER.Progress;
-    currentValuePointers[i++] = &PID_TIMER.Duration;
-
-    currentValuePointers[i++] = &BOILER_ON_TIMER.Progress;
-    currentValuePointers[i++] = &BOILER_ON_TIMER.Duration;
-    currentValuePointers[i++] = &Prm.TempDelta;
-
     modeBlinkState = false;
     forceRedraw = true;
     SCREEN.begin();

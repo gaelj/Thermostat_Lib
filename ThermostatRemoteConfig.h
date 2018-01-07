@@ -13,7 +13,6 @@
 #include "enumerations.h"
 #include "zwave_encoding.h"
 #include "timer.h"
-#include "radiator.h"
 
 #define NO_VALUE        0xFF
 

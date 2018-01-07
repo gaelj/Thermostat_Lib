@@ -49,21 +49,6 @@ void Thermostat_Loop()
         setPoint = Settings_GetSetPoint(Prm.CurrentThermostatMode);
         inputTemperature = SensorTemperature;
 
-        // over temperature check
-        if (inputTemperature < setPoint + 4) {
-            // Check for temperature deltas on radiators
-            for (byte r = 0; r < RADIATOR_COUNT; r++) {
-                // invalid value check
-                if (Radiators[r].SetPoint < -10 || Radiators[r].Temperature < -10)
-                    continue;
-                if ((Radiators[r].SetPoint - Radiators[r].Temperature) >(setPoint - inputTemperature)) {
-                    setPoint = Radiators[r].SetPoint;
-                    inputTemperature = Radiators[r].Temperature;
-                }
-            }
-        }
-
-
         newOutput = PIDREG.Compute();
         if (newOutput != -1)
             LastOutput = newOutput;
