@@ -26,6 +26,7 @@ void PID::Create(const float initialInput, const float Min, const float Max, flo
 {
     input = temperature;
     mySetpoint = setPoint;
+    lastSetpoint = *mySetpoint;
 
     lastInput = initialInput;
     inAuto = false;
@@ -77,6 +78,7 @@ float PID::Compute()
     constrain(lastOutput, outMin, outMax);
     
     //Remember some variables for next time
+    lastSetpoint = *mySetpoint;
     lastInput = *input;
     lastTime = now;
 

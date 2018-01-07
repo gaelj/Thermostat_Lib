@@ -3,6 +3,8 @@
 
 #include <Arduino.h>
 
+#define RADIATOR_COUNT      3
+
 struct radiator_s {
     float SetPoint;
     float Temperature;

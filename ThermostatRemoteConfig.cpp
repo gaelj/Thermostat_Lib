@@ -17,7 +17,7 @@ void Remote_InitParameters()
     Prm.ExteriorHumidity = 0;
     Prm.IlluminationPower = true;
 
-    for (byte i = 0; i < 6; i++) {
+    for (byte i = 0; i < RADIATOR_COUNT; i++) {
         Radiators[i].SetPoint = 0;
         Radiators[i].Temperature = 0;
     }
@@ -28,8 +28,11 @@ byte GetRadId(byte commandBase)
     return (currentCommand - commandBase) / 4;
 }
 
-void ProcessCommandValue()
+void Remote_ProcessCommandValue(Commands command, byte value)
 {
+    currentCommand = command;
+    currentValue = value;
+
 #ifdef LOGGING_ACTIVE
     Serial.print(millis());
     Serial.print(" Processing cmd: ");
@@ -49,18 +52,18 @@ void ProcessCommandValue()
             case Get_Radiator0Setpoint1:
             case Get_Radiator1Setpoint1:
             case Get_Radiator2Setpoint1:
-            case Get_Radiator3Setpoint1:
-            case Get_Radiator4Setpoint1:
-            case Get_Radiator5Setpoint1:
+            //case Get_Radiator3Setpoint1:
+            //case Get_Radiator4Setpoint1:
+            //case Get_Radiator5Setpoint1:
                 radiatorId = GetRadId(Get_Radiator0Setpoint1);
                 Radiators[radiatorId].SetPoint = float(currentValue) - 50.0f;
                 break;
             case Get_Radiator0Setpoint2:
             case Get_Radiator1Setpoint2:
             case Get_Radiator2Setpoint2:
-            case Get_Radiator3Setpoint2:
-            case Get_Radiator4Setpoint2:
-            case Get_Radiator5Setpoint2:
+            //case Get_Radiator3Setpoint2:
+            //case Get_Radiator4Setpoint2:
+            //case Get_Radiator5Setpoint2:
                 radiatorId = GetRadId(Get_Radiator0Setpoint2);
                 Radiators[radiatorId].SetPoint += float(currentValue) / 100.0f;
                 break;
@@ -68,18 +71,18 @@ void ProcessCommandValue()
             case Get_Radiator0Temperature1:
             case Get_Radiator1Temperature1:
             case Get_Radiator2Temperature1:
-            case Get_Radiator3Temperature1:
-            case Get_Radiator4Temperature1:
-            case Get_Radiator5Temperature1:
+            //case Get_Radiator3Temperature1:
+            //case Get_Radiator4Temperature1:
+            //case Get_Radiator5Temperature1:
                 radiatorId = GetRadId(Get_Radiator0Temperature1);
                 Radiators[radiatorId].Temperature = float(currentValue) - 50.0f;
                 break;
             case Get_Radiator0Temperature2:
             case Get_Radiator1Temperature2:
             case Get_Radiator2Temperature2:
-            case Get_Radiator3Temperature2:
-            case Get_Radiator4Temperature2:
-            case Get_Radiator5Temperature2:
+            //case Get_Radiator3Temperature2:
+            //case Get_Radiator4Temperature2:
+            //case Get_Radiator5Temperature2:
                 radiatorId = GetRadId(Get_Radiator0Temperature2);
                 Radiators[radiatorId].Temperature += float(currentValue) / 100.0f;
                 break;
@@ -108,15 +111,4 @@ void ProcessCommandValue()
         Serial.println(" NG");
     }
 #endif // LOGGING_ACTIVE
-}
-
-void Remote_SetCommand(Commands command)
-{
-    currentCommand = command;
-}
-
-void Remote_SetValue(byte value)
-{
-    currentValue = value;
-    ProcessCommandValue();
 }

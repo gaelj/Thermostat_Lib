@@ -5,6 +5,7 @@ TimerClass::TimerClass(unsigned long durationInMillis)
     DurationInMillis = durationInMillis;
     StartTime = millis();
     IsActive = false;
+    GetProgress();
 }
 
 void TimerClass::Start()

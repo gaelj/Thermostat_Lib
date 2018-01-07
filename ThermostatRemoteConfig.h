@@ -18,7 +18,6 @@
 #define NO_VALUE        0xFF
 
 void Remote_InitParameters();
-void Remote_SetCommand(Commands command);
-void Remote_SetValue(byte value);
+void Remote_ProcessCommandValue(Commands command, byte value);
 
 #endif // REMOTECONFIG_H

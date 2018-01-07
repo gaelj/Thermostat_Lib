@@ -20,8 +20,9 @@ extern byte ztxValue;
 extern byte zrxCommand;
 extern byte zrxValue;
 
-extern radiator_s Radiators[6];
+extern radiator_s Radiators[RADIATOR_COUNT];
 
 extern Commands currentCommand;
+extern byte currentPage;
 
 #endif // GLOBALS_H

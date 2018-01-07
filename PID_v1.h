@@ -35,7 +35,7 @@ public:
 
     void SetMode(int);                    // * sets PID to either Manual (0) or Auto (non-0)
 
-    float outputSum, lastInput, lastOutput, error, dInput;
+    float outputSum, lastInput, lastOutput, error, dInput, lastSetpoint;
 
 private:
     void Initialize();

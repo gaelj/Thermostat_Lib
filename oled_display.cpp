@@ -26,7 +26,7 @@ void AppendEmptyLine(unsigned int startOfLineLength);
 
 float prog = -1.0f;
 
-static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, 18, PARAMETER_COUNT };
+static byte paramStartByPage[OLED_PAGE_COUNT + 1] = { 0, 5, 11, 19, PARAMETER_COUNT };
 
 static char* oledStrings[PARAMETER_COUNT] = {
     "Inside tmp",
@@ -43,6 +43,7 @@ static char* oledStrings[PARAMETER_COUNT] = {
     "Palier tmp",
 
     "PID lst inp",
+    "PID lst sp",
     "PID lst out",
     "PID out sum",
     "PID err",
@@ -84,6 +85,7 @@ static Units UnitsPerString[PARAMETER_COUNT] = {
     UnitCelcius,
 
     UnitCelcius,
+    UnitCelcius,
     UnitNone,
     UnitNone,
     UnitCelcius,
@@ -96,7 +98,7 @@ static Units UnitsPerString[PARAMETER_COUNT] = {
     UnitCelcius
 };
 
-static char* LoadingString = "Loading: ";
+static char* LoadingString = "Loading";
 
 void OledDisplay_Init()
 {
@@ -107,12 +109,13 @@ void OledDisplay_Init()
     currentValuePointers[i++] = &Prm.ExteriorHumidity;
     currentValuePointers[i++] = &Prm.ExteriorPressure;
 
-    for (byte rad = 0; rad < 3; rad++) {
+    for (byte rad = 0; rad < RADIATOR_COUNT; rad++) {
         currentValuePointers[i++] = &Radiators[rad].SetPoint;
         currentValuePointers[i++] = &Radiators[rad].Temperature;
     }
 
     currentValuePointers[i++] = &PIDREG.lastInput;
+    currentValuePointers[i++] = &PIDREG.lastSetpoint;
     currentValuePointers[i++] = &PIDREG.lastOutput;
     currentValuePointers[i++] = &PIDREG.outputSum;
     currentValuePointers[i++] = &PIDREG.error;
