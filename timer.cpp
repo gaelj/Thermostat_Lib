@@ -36,7 +36,10 @@ bool TimerClass::IsElapsedRestart()
 void TimerClass::GetProgress()
 {
     Duration = MillisToMinutes(DurationInMillis);
-    Progress = float(long(100.0f * float(GetCurrentDuration()) / float(DurationInMillis)));
+    if (DurationInMillis != 0)
+        Progress = float(long(100.0f * float(GetCurrentDuration()) / float(DurationInMillis)));
+    else
+        Progress = 100.0f;
 }
 
 unsigned long TimerClass::GetCurrentDuration()

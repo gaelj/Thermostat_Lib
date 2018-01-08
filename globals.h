@@ -6,20 +6,16 @@
 #include "timer.h"
 #include "PID_v1.h"
 
+extern zwave_values_t zwave_values;
+extern settings_t TheSettings;
+extern params_t Prm;
+
 extern float SensorTemperature;
 extern float SensorHumidity;
-extern settings_s TheSettings;
-extern bool CurrentBoilerState;
-extern params_s Prm;
+extern byte CurrentBoilerState;
 extern TimerClass BOILER_ON_TIMER;
 extern TimerClass PID_TIMER;
 
-extern byte ztxCommand;
-extern byte ztxValue;
-extern byte zrxCommand;
-extern byte zrxValue;
-
-extern Commands currentCommand;
 extern byte currentPage;
 
 #endif // GLOBALS_H

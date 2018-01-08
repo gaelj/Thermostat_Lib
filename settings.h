@@ -7,8 +7,18 @@
 #include "led.h"
 #include "enumerations.h"
 
-//#define LOGGING_ACTIVE
-#undef LOGGING_ACTIVE
+#define LOGGING_ACTIVE
+//#undef LOGGING_ACTIVE
+
+// Defines the order of the Zwave channels
+#define ZUNO_REPORT_TEMP            1
+#define ZUNO_REPORT_HUMIDITY        2
+#define ZUNO_REPORT_BOILER          3
+#define ZUNO_REPORT_SETPOINT        4
+#define ZUNO_REPORT_MODE            5
+#define ZUNO_REPORT_EXT_TEMP        6
+#define ZUNO_REPORT_EXT_HUM         7
+#define ZUNO_REPORT_EXT_PRESS       8
 
 #define E2P_VERSION                 2           // change this value to apply default settings on first boot after flash
 #define E2P_START_ADDRESS           1
@@ -20,8 +30,7 @@
 #define BOILER_MIN_TIME             1 * 60000   // min time between boiler state changes
 
 #define LOOP_DELAY                  10          // min loop period (including loop execution time)
-#define ZWAVE_LONG_PERIOD           30000       // ZWave refresh period (ZWave spec requires min 30s)
-#define ZWAVE_SHORT_PERIOD          4000        // Wait period between zwave send command and read response command & value
+#define ZWAVE_PERIOD                30000       // ZWave refresh period (ZWave spec requires min 30s)
 #define MODE_SET_DELAY_PERIOD       1000        // Wait delay before setting mode selected by button push (allows cycling through modes and only sending the last selected mode)
 #define READ_SENSOR_PERIOD          10000       // temperature sensor refresh period (millis)
 #define OLED_PAGE_PERIOD            5000        // time during which each paged is displayed before moving on to the next one
@@ -31,7 +40,7 @@
 #define LED_ANIMATION_MIN_PERIOD    100
 #define LED_ANIMATION_MAX_PERIOD    1000
 #define LED_ANIMATION_TOTAL_PERIOD  30000
-static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
+static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_WHITE, COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
 
 #define LED_COUNT                   3
 #define FLASHES                     3 // 0-1-0

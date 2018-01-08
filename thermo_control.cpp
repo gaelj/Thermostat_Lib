@@ -10,9 +10,7 @@ TimerClass BOILER_ON_TIMER(0);
 TimerClass PID_TIMER(BOILER_MIN_TIME);
 float LastOutput;
 float newOutput;
-float setPoint;
 float inputTemperature;
-ThermostatMode CurrentThermostatMode;
 
 
  /**
@@ -24,9 +22,27 @@ void Thermostat_Init()
     PID_TIMER.DurationInMillis = TheSettings.SampleTime;
     SetBoilerState(SWITCH_OFF);
     LastOutput = 0;
-    PIDREG.Create(SensorTemperature, 0, 1, &inputTemperature, &setPoint);
+    PIDREG.Create(SensorTemperature, 0, 1, &inputTemperature, &TheSettings.CurrentSetPoint);
     PIDREG.SetMode(AUTOMATIC);
-    CurrentThermostatMode = Prm.CurrentThermostatMode;
+    Prm.CurrentThermostatMode = NoMode;
+}
+
+void Thermostat_SetMode(ThermostatMode newMode)
+{
+    if (Prm.CurrentThermostatMode == newMode || newMode == NoMode)
+        return;
+    Prm.CurrentThermostatMode = newMode;
+    Thermostat_SetSetPoint(Settings_GetSetPoint(newMode));
+}
+
+void Thermostat_SetSetPoint(float value)
+{
+    if (TheSettings.CurrentSetPoint == value)
+        return;
+    TheSettings.CurrentSetPoint = value;
+    PID_TIMER.IsActive = false;
+    zwave_values.Setpoint = EncodeTemp(TheSettings.CurrentSetPoint);
+    zunoSendReport(ZUNO_REPORT_SETPOINT);
 }
 
 /**
@@ -36,19 +52,9 @@ void Thermostat_Init()
  */
 void Thermostat_Loop()
 {
-    // Set mode if changed
-    if (Prm.CurrentThermostatMode != CurrentThermostatMode) {
-        CurrentThermostatMode = Prm.CurrentThermostatMode;
-        PID_TIMER.IsActive = false;
-    }
-
     // Compute the PID and set boiler duration accordingly
     if (PID_TIMER.IsElapsedRestart()) {
-
-        // Get the temperature & setpoint with the largest delta on thermostat & each radiator
-        setPoint = Settings_GetSetPoint(Prm.CurrentThermostatMode);
         inputTemperature = SensorTemperature;
-
         newOutput = PIDREG.Compute();
         if (newOutput != -1)
             LastOutput = newOutput;
@@ -57,7 +63,7 @@ void Thermostat_Loop()
     }
 
     // Turn off boiler if setpoint is reached
-    if (inputTemperature > setPoint)
+    if (inputTemperature > TheSettings.CurrentSetPoint)
         BOILER_ON_TIMER.IsActive = false;
     
     // Change boiler state if requried

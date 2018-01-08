@@ -36,7 +36,7 @@ float* currentValuePointers[PARAMETER_COUNT] = {
     &BOILER_ON_TIMER.Duration,
     &Prm.TempDelta
 };
-byte currentPage = OLED_PAGE_COUNT;
+byte currentPage = 0;
 bool forceRedraw;
 
 bool ValuesOnCurrentPageHaveChanged();
@@ -121,9 +121,7 @@ void OledDisplay_Init()
 */
 void OledDisplay_ShowNextPage()
 {
-    if (currentPage != OLED_PAGE_COUNT) {
-        currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
-    }
+    currentPage = (currentPage + 1) % OLED_PAGE_COUNT;
     forceRedraw = true;
 }
 
@@ -138,22 +136,11 @@ void OledDisplay_DrawDisplay()
     if (redraw) {
         byte i = 0;
         BLOCK.Init();
-        if (currentPage == OLED_PAGE_COUNT) {
-            prog = (float(int(currentCommand) * 100)) / ZWAVE_MSG_COUNT;
-            for (i = 0; i < 2; i++)
-                AppendEmptyLine(0);
-            AppendLine(LoadingString, prog, unitStrings[UnitPercentage]);
-            
-            if (currentCommand == ZWAVE_MSG_COUNT)
-                currentPage = 0;
+        for (i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
+            AppendLine(oledStrings[i], *currentValuePointers[i], unitStrings[UnitsPerString[i]]);
         }
-        else {
-            for (i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
-                AppendLine(oledStrings[i], *currentValuePointers[i], unitStrings[UnitsPerString[i]]);
-            }
-            for (i = paramStartByPage[currentPage + 1] - paramStartByPage[currentPage]; i < (currentPage == 0 ? OLED_TEXT_LINE_COUNT_P1 : OLED_TEXT_LINE_COUNT); i++) {
-                AppendEmptyLine(0);
-            }
+        for (i = paramStartByPage[currentPage + 1] - paramStartByPage[currentPage]; i < (currentPage == 0 ? OLED_TEXT_LINE_COUNT_P1 : OLED_TEXT_LINE_COUNT); i++) {
+            AppendEmptyLine(0);
         }
 
         SCREEN.gotoXY(0, 0);
@@ -248,9 +235,6 @@ void OledDisplay_SetPower(bool value)
 bool ValuesOnCurrentPageHaveChanged()
 {
     // Check for changes
-    if (currentPage == OLED_PAGE_COUNT)
-        return prog != ((float(int(currentCommand) * 100)) / ZWAVE_MSG_COUNT);
-
     bool ret = false;
     for (byte i = paramStartByPage[currentPage]; i < paramStartByPage[currentPage + 1]; i++) {
         if (previousValues[i] != *currentValuePointers[i]) {

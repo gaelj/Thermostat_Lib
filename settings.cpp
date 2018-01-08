@@ -1,6 +1,6 @@
 #include "settings.h"
 
-settings_s TheSettings;
+settings_t TheSettings;
 
 /**
  * @brief Get the selected setpoint temperature
@@ -44,9 +44,9 @@ byte GetCrc8(byte* data, byte count)
 bool Settings_RestoreSettings()
 {
     //Serial.println("Restore stgs");
-    EEPROM.get(E2P_START_ADDRESS, &TheSettings, sizeof(settings_s));
+    EEPROM.get(E2P_START_ADDRESS, &TheSettings, sizeof(settings_t));
     Settings_Dump();
-    return GetCrc8((byte*)&TheSettings, sizeof(settings_s) - 1) == TheSettings.crc8
+    return GetCrc8((byte*)&TheSettings, sizeof(settings_t) - 1) == TheSettings.crc8
             && TheSettings.Version == E2P_VERSION;
 }
 
@@ -85,8 +85,8 @@ bool Settings_PersistSettings()
 {
     //Serial.print("Persist stgs ");
     //Serial.println((int)sizeof(settings_s));
-    TheSettings.crc8 = GetCrc8((byte*)&TheSettings, sizeof(settings_s) - 1);
-    EEPROM.put(E2P_START_ADDRESS, &TheSettings, sizeof(settings_s));
+    TheSettings.crc8 = GetCrc8((byte*)&TheSettings, sizeof(settings_t) - 1);
+    EEPROM.put(E2P_START_ADDRESS, &TheSettings, sizeof(settings_t));
     if (!Settings_RestoreSettings()) {
         //Serial.println("Persist check error");
         return false;

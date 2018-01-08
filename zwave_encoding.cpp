@@ -1,23 +1,6 @@
 #include "zwave_encoding.h"
 
 
-/**
-* @brief Convert a thermostat mode to byte value for Zwave slider report
-*
-*/
-byte EncodeMode(const ThermostatMode mode)
-{
-    return (mode + 1) * 10;
-}
-
-/**
-* @brief Convert a byte value to thermostat mode for Zwave slider control
-*
-*/
-ThermostatMode DecodeMode(const byte code)
-{
-    return ThermostatMode((code / 10) - 1);
-}
 
 /**
 * @brief Encode a real temperature to a value from 0 to 100
@@ -26,7 +9,7 @@ ThermostatMode DecodeMode(const byte code)
 *
 * @return byte ranging from 0 to 100
 */
-byte EncodeExteriorTemperature(const float temp)
+byte EncodeTemp(const float temp)
 {
     int value = round((temp + 25) * 2);
     if (value < 0) value = 0;
@@ -41,9 +24,19 @@ byte EncodeExteriorTemperature(const float temp)
 *
 * @return float
 */
-float DecodeExteriorTemperature(const byte encoded)
+float DecodeTemp(const byte encoded)
 {
-    return (float(encoded) / 2) - 25;
+    return (float(encoded) / 2.0f) - 25.0f;
+}
+
+float DecodeHumidity(const byte encoded)
+{
+    return encoded == 99 ? 100.0f : float(encoded);
+}
+
+float DecodePressure(const byte encoded)
+{
+    return 950.0f + float(encoded);
 }
 
 /**
@@ -63,9 +56,4 @@ float MillisToSeconds(unsigned long m)
 float MillisToMinutes(unsigned long m)
 {
     return float(m / 1000) / 60;
-}
-
-float CalculateTemperature(byte baseVal, byte floatVal)
-{
-    return float(baseVal) - 50.0f + (float(floatVal) / 100.0f);
 }

@@ -10,8 +10,6 @@
 #include "thermo_control.h"
 #include "led_control.h"
 #include "oled_display.h"
-#include "ThermostatRemoteConfig.h"
-#include "zwave_communication.h"
 
 enum ButtonActions {
     NoButtonAction,

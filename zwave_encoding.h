@@ -9,13 +9,12 @@
 #include <Arduino.h>
 #include "enumerations.h"
 
-byte EncodeMode(const ThermostatMode mode);
-ThermostatMode DecodeMode(const byte code);
-byte EncodeExteriorTemperature(const float temp);
-float DecodeExteriorTemperature(const byte encoded);
+byte EncodeTemp(const float temp);
+float DecodeTemp(const byte encoded);
+float DecodeHumidity(const byte encoded);
+float DecodePressure(const byte encoded);
 word EncodeSensorReading(const float value);
 float MillisToMinutes(unsigned long m);
 float MillisToSeconds(unsigned long m);
-float CalculateTemperature(byte baseVal, byte floatVal);
 
 #endif // ZWAVE_ENCODING_H

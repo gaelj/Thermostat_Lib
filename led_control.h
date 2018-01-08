@@ -7,7 +7,6 @@
 #include "boiler.h"
 #include "thermo_control.h"
 #include "enumerations.h"
-#include "ThermostatRemoteConfig.h"
 
 void LedsSetFlash(byte color);
 void LedsSetBlinkingState();
