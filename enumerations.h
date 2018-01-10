@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define THERMOSTAT_MODE_COUNT 6
+#define THERMOSTAT_MODE_COUNT 10
 
 /**
 * @brief Possible modes for the thermostat
@@ -15,7 +15,11 @@ enum ThermostatMode {
     Absent,
     Night,
     Day,
-    Warm
+    Warm,
+    DayFloor1,
+    WarmFloor1,
+    DayFloor2,
+    WarmFloor2
 };
 
 /**
@@ -30,6 +34,10 @@ struct settings_s {
     float Setpoint_Night;
     float Setpoint_Day;
     float Setpoint_Warm;
+    float Setpoint_DayFloor1;
+    float Setpoint_WarmFloor1;
+    float Setpoint_DayFloor2;
+    float Setpoint_WarmFloor2;
     float Kp;                  // (P)roportional Tuning Parameter
     float Ki;                  // (I)ntegral Tuning Parameter
     float Kd;                  // (D)erivative Tuning Parameter

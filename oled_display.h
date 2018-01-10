@@ -24,8 +24,9 @@
 #define OLED_ROWHEADER_LEN      14
 #define PARAMETER_COUNT         16
 #define ICONS_ROW               5
-#define ICONS_COL1              20
-#define ICONS_COL2              80
+#define ICONS_COL1              15
+#define ICONS_COL2              50
+#define ICONS_COL3              85
 
 void OledDisplay_Init();
 void OledDisplay_DrawDisplay();

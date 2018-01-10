@@ -164,23 +164,37 @@ void OledDisplay_DrawDisplay()
 
         // blinking thermostat mode icon
         if (timerElapsed || modeChanged || redraw) {
-            char* modeIcon = empty_icon;
+            char* icon = empty_icon;
             if (modeBlinkState) {
                 switch (Prm.CurrentThermostatMode) {
-                    case Frost: modeIcon = snow_icon; break;
-                    case Absent: modeIcon = absent_icon; break;
-                    case Night: modeIcon = moon_icon; break;
-                    case Day: modeIcon = sun_icon; break;
-                    case Warm: modeIcon = hot_icon; break;
+                    case Frost: icon = snow_icon; break;
+                    case Absent: icon = absent_icon; break;
+                    case Night: icon = moon_icon; break;
+                    case Day: // nobreak
+                    case DayFloor1: // nobreak
+                    case DayFloor2: icon = sun_icon; break;
+                    case Warm: // nobreak
+                    case WarmFloor1: // nobreak
+                    case WarmFloor2: icon = hot_icon; break;
                 }
             }
             SCREEN.gotoXY(ICONS_COL1, ICONS_ROW);
-            SCREEN.writeData(modeIcon);
+            SCREEN.writeData(icon);
+
+            icon = empty_icon;
+            switch (Prm.CurrentThermostatMode) {
+                case DayFloor1: // nobreak
+                case WarmFloor1: icon = down_icon; break;
+                case DayFloor2: // nobreak
+                case WarmFloor2: icon = up_icon; break;
+            }
+            SCREEN.gotoXY(ICONS_COL2, ICONS_ROW);
+            SCREEN.writeData(icon);
         }
 
         // boiler state icon
         if (boilerChanged || redraw) {
-            SCREEN.gotoXY(ICONS_COL2, ICONS_ROW);
+            SCREEN.gotoXY(ICONS_COL3, ICONS_ROW);
             SCREEN.writeData(CurrentBoilerState ? flame_icon : empty_icon);
         }
     }

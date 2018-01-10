@@ -9,12 +9,16 @@ settings_t TheSettings;
 float Settings_GetSetPoint(const ThermostatMode mode)
 {
     switch (mode) {
-        case Frost:  return TheSettings.Setpoint_Frost;
-        //case Absent: return _Settings.Setpoint_Absent;
-        case Night:  return TheSettings.Setpoint_Night;
-        case Day:    return TheSettings.Setpoint_Day;
-        case Warm:   return TheSettings.Setpoint_Warm;
-        default:     return TheSettings.Setpoint_Absent;
+        case Frost:      return TheSettings.Setpoint_Frost;
+        case Absent:     return TheSettings.Setpoint_Absent;
+        case Night:      return TheSettings.Setpoint_Night;
+        case Day:        return TheSettings.Setpoint_Day;
+        case Warm:       return TheSettings.Setpoint_Warm;
+        case DayFloor1:  return TheSettings.Setpoint_DayFloor1;
+        case WarmFloor1: return TheSettings.Setpoint_WarmFloor1;
+        case DayFloor2:  return TheSettings.Setpoint_DayFloor2;
+        case WarmFloor2: return TheSettings.Setpoint_WarmFloor2;
+        default:         return TheSettings.Setpoint_Absent;
     }
 }
 
@@ -64,6 +68,10 @@ void Settings_LoadDefaults()
     TheSettings.Setpoint_Night = DEFAULT_Setpoint_Night;
     TheSettings.Setpoint_Day = DEFAULT_Setpoint_Day;
     TheSettings.Setpoint_Warm = DEFAULT_Setpoint_Warm;
+    TheSettings.Setpoint_DayFloor1 = DEFAULT_Setpoint_DayFloor1;
+    TheSettings.Setpoint_WarmFloor1 = DEFAULT_Setpoint_WarmFloor1;
+    TheSettings.Setpoint_DayFloor2 = DEFAULT_Setpoint_DayFloor2;
+    TheSettings.Setpoint_WarmFloor2 = DEFAULT_Setpoint_WarmFloor2;
     TheSettings.Kp = DEFAULT_Kp;
     TheSettings.Ki = DEFAULT_Ki;
     TheSettings.Kd = DEFAULT_Kd;

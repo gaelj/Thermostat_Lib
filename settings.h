@@ -7,8 +7,8 @@
 #include "led.h"
 #include "enumerations.h"
 
-#define LOGGING_ACTIVE
-//#undef LOGGING_ACTIVE
+//#define LOGGING_ACTIVE
+#undef LOGGING_ACTIVE
 
 // Defines the order of the Zwave channels
 #define ZUNO_REPORT_TEMP            1
@@ -40,7 +40,7 @@
 #define LED_ANIMATION_MIN_PERIOD    100
 #define LED_ANIMATION_MAX_PERIOD    1000
 #define LED_ANIMATION_TOTAL_PERIOD  30000
-static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_WHITE, COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW };
+static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_WHITE, COLOR_BLUE, COLOR_CYAN, COLOR_MAGENTA, COLOR_GREEN, COLOR_YELLOW, COLOR_GREEN, COLOR_YELLOW, COLOR_GREEN, COLOR_YELLOW };
 
 #define LED_COUNT                   3
 #define FLASHES                     3 // 0-1-0
@@ -56,7 +56,11 @@ static const byte ColorsByMode[THERMOSTAT_MODE_COUNT] = { COLOR_WHITE, COLOR_BLU
 #define DEFAULT_Setpoint_Absent     14.0
 #define DEFAULT_Setpoint_Night      15.0
 #define DEFAULT_Setpoint_Day        19.0
-#define DEFAULT_Setpoint_Warm       22.0
+#define DEFAULT_Setpoint_Warm       21.0
+#define DEFAULT_Setpoint_DayFloor1  19.0
+#define DEFAULT_Setpoint_WarmFloor1 21.0
+#define DEFAULT_Setpoint_DayFloor2  15.0
+#define DEFAULT_Setpoint_WarmFloor2 15.0
 #define DEFAULT_Kp                  0.5
 #define DEFAULT_Ki                  0.0
 #define DEFAULT_Kd                  0.0
