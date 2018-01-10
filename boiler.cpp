@@ -23,7 +23,7 @@ void SetBoilerState(byte value)
 #endif // LOGGING_ACTIVE
 
         CurrentBoilerState = value;
-        zunoSendToGroupSetValueCommand(CONTROL_GROUP_1, value);
+        zunoSendToGroupSetValueCommand(CONTROL_GROUP_1, value > 0 ? 0xFF : 00);
     }
     if (zwave_values.BoilerState != CurrentBoilerState) {
 #ifdef LOGGING_ACTIVE

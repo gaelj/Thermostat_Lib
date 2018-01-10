@@ -67,5 +67,5 @@ void Thermostat_Loop()
         BOILER_ON_TIMER.IsActive = false;
     
     // Change boiler state if requried
-    SetBoilerState(BOILER_ON_TIMER.IsElapsed() ? SWITCH_OFF : SWITCH_ON);
+    SetBoilerState(BOILER_ON_TIMER.IsElapsed() ? 0 : 99);
 }
